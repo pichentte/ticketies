@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paw-nchies Movie Tickets</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #000000 0%, #8B0000 50%, #FF1493 100%);
+            color: #fff;
+        }
+        h1 {
+            text-align: center;
+            color: #ff4500;
+        }
+        .now-showing {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .now-poster {
+            width: 120px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+        .now-info h2 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .now-info p {
+            margin: 5px 0;
+            color: #333;
+        }
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .movie-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .movie-card:hover {
+            transform: scale(1.05);
+        }
+        .movie-poster {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .movie-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .synopsis {
+            font-size: 0.85em;
+            color: #555;
+            line-height: 1.4;
+            margin-bottom: 15px;
+            text-align: left;
+            max-height: 80px;
+            overflow: hidden;
+        }
+        .prices {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .tnc {
+            background: rgba(255,243,205,0.9);
+            border: 2px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 40px;
+            font-size: 0.9em;
+            line-height: 1.6;
+            color: #333;
+        }
+        .tnc h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+        @media (max-width: 600px) {
+            .movies-grid {
+                grid-template-columns: 1fr;
+            }
+            .movie-poster {
+                height: 300px;
+            }
+            .synopsis {
+                max-height: none;
+            }
+            .now-showing {
+                flex-direction: column;
+                text-align: center;
+            }
+            .now-poster {
+                width: 100px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🍿 Paw-nchies Movie Tickets 🎥</h1>
+    
+    <div class="now-showing">
+        <img src="https://scontent.fkul8-4.fna.fbcdn.net/v/t39.30808-6/486179701_1692592554716839_3399243460494560933_n.jpg?stp=dst-jpg_s640x640_tt6&_nc_cat=100&ccb=1-7&_nc_sid=13d280&_nc_ohc=G9ffnLmA_sUQ7kNvwHABzyL&_nc_oc=AdoXC_Bdpj9_GSxfvqL-OBc5jxoUNTtrhyJqYV0PzEoZFFXl4YS9kczED96KlWYVNSwX1Oz8tUeBVnJLzUXmZMB2&_nc_zt=23&_nc_ht=scontent.fkul8-4.fna&_nc_gid=6o0Z0VwSN6ncxNhpVahyoQ&_nc_ss=7a30f&oh=00_AfwNC2DSTzSpbM3cBCZWqr2CwKgfxd8ZPmKHjzIZ-Mjvwg&oe=69C995E6" alt="Havoc Now Showing" class="now-poster" loading="lazy">
+        <div class="now-info">
+            <h2>Now Showing!</h2>
+            <p><strong>Havoc</strong> at Grand Kawaii Hall 1</p>
+            <p>🕕 6:30 PM to 10:00 PM (UK/MYT)</p>
+        </div>
+    </div>
+
+    <div class="movies-grid">
+        <div class="movie-card">
+            <img src="https://scontent.fkul8-4.fna.fbcdn.net/v/t39.30808-6/486179701_1692592554716839_3399243460494560933_n.jpg?stp=dst-jpg_s640x640_tt6&_nc_cat=100&ccb=1-7&_nc_sid=13d280&_nc_ohc=G9ffnLmA_sUQ7kNvwHABzyL&_nc_oc=AdoXC_Bdpj9_GSxfvqL-OBc5jxoUNTtrhyJqYV0PzEoZFFXl4YS9kczED96KlWYVNSwX1Oz8tUeBVnJLzUXmZMB2&_nc_zt=23&_nc_ht=scontent.fkul8-4.fna&_nc_gid=6o0Z0VwSN6ncxNhpVahyoQ&_nc_ss=7a30f&oh=00_AfwNC2DSTzSpbM3cBCZWqr2CwKgfxd8ZPmKHjzIZ-Mjvwg&oe=69C995E6" alt="Havoc 2025 Poster" class="movie-poster" loading="lazy">
+            <div class="movie-title">Havoc </div>
+            <div class="synopsis">
+                After a drug deal gone wrong, a bruised detective must fight his way through the criminal underworld to rescue a politician's estranged son, unravelling a deep web of corruption and conspiracy that ensnares his entire city.
+            </div>
+            <div class="prices">RM 25 | £ 4</div>
+        </div>
+        
+        <div class="movie-card">
+            <img src="https://lh4.googleusercontent.com/proxy/xDKkfqmF-3BLvdANTkqoFD9HOYzCZ2GLG1iIUQlzf5nOh9NM5sN5Yb8rh7KAHoHxJ2la6YIpn4CqbCwjZU7rLtsI250" alt="Hoppers 2026 Poster" class="movie-poster" loading="lazy">
+            <div class="movie-title">[IMAX] Disney Hoppers</div>
+            <div class="synopsis">
+                When scientists discover a way to transform human consciousness into robotic animals, Mabel uses the new technology to uncover mysteries of the animal world that are beyond anything she could have ever imagined.
+            </div>
+            <div class="prices">TBA</div>
+        </div>
+        
+        <div class="movie-card">
+            <img src="https://upload.wikimedia.org/wikipedia/en/e/e5/GOAT_poster.jpg" alt="GOAT 2026 Poster" class="movie-poster" loading="lazy">
+            <div class="movie-title">GOAT</div>
+            <div class="synopsis">
+                A small goat named Will gets a once-in-a-lifetime shot to join the pros and play roarball -- a high-intensity, full-contact sport that's dominated by the fastest, fiercest animals in the world. Ridiculed by his teammates, Will becomes determined to revolutionize the sport and prove that "small can ball!"
+            </div>
+            <div class="prices">RM 30 | £ 5</div>
+        </div>
+        
+        <div class="movie-card">
+            <img src="https://upload.wikimedia.org/wikipedia/en/c/c0/Heart_Eyes_%282025%29_poster.jpg" alt="Heart Eyes 2025 Poster" class="movie-poster" loading="lazy">
+            <div class="movie-title">[IMAX] Heart Eyes </div>
+            <div class="synopsis">
+                A masked maniac with glowing, red eyes returns every Valentine's Day to slaughter unsuspecting couples. When a cynical ad executive and her hopelessly romantic colleague become the next target, they decide to fight back and end the reign of terror.
+            </div>
+            <div class="prices">RM 26 | £ 4.20</div>
+        </div>
+    </div>
+
+    <div class="tnc">
+        <h3>Paw-nchies T&C</h3>
+        <p>No Refunds or Cancellations – Baby Oyen gets mad and does pawpissies or pawpunchies. Vegimals decide everything.</p>
+        <p>No Pee or Poopies Once Inside</p>
+        <p>Show Your Ticket to Baby Oyen or Baby Hitler Buh Sniffers</p>
+        <p>No Sneaky Shawarmies – Baby Oyen's nose is a midget ones, she might steal your food and eepi leaving the main entrance open.</p>
+        <p>By buying/using this ticket, you pawmish to follow ALL rules. Break 'em? Baby Oyen farties on your face.🐱🎥</p>
+    </div>
+</body>
+</html>
