@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seat Selection</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="index.html" class="brand" style="text-decoration:none;">← Back</a>
+  <div class="topbar-right">
+    <span class="slots-pill">pick a seat</span>
+  </div>
+</header>
+
+<main id="movieRoot">
+  <section style="margin-top:22px;">
+    <div class="detail-hero">
+      <img id="detailPoster" src="" alt="Movie poster">
+      <div>
+        <h2 id="detailCode"></h2>
+        <p class="slots" id="detailSlots"></p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Showtime</h2>
+    <div class="showtimes" id="showtimes"></div>
+  </section>
+
+  <section>
+    <h2>Pick a seat</h2>
+    <div class="screen-bar">
+      <div class="curve"></div>
+      SCREEN
+    </div>
+    <div class="seat-map" id="seatMap"></div>
+    <div class="seat-legend">
+      <span><span class="swatch" style="background:var(--panel)"></span>Open</span>
+      <span><span class="swatch" style="background:var(--panel-2)"></span>Taken</span>
+      <span><span class="swatch" style="background:#3a2f17"></span>Pich's seat</span>
+      <span><span class="swatch" style="background:#2a1820;box-shadow:0 0 0 1px #ff6fae inset"></span>K6/K7</span>
+      <span><span class="swatch" style="background:var(--gold)"></span>Your pick</span>
+    </div>
+  </section>
+
+  <div class="cta-bar">
+    <p class="summary" id="ctaSummary">Pick a showtime and a seat to continue</p>
+    <button class="pick-btn" id="ctaButton" disabled>Continue to payment</button>
+  </div>
+</main>
+
+<footer class="site-footer">© Rockvengers (30120112). All rights reserved.</footer>
+
+<div class="mascot" aria-hidden="true"></div>
+
+<!-- T&C modal -->
+<div class="modal-backdrop" id="tncModal">
+  <div class="modal-panel">
+    <h3>Pawnchies T&amp;C</h3>
+    <div class="tnc-scroll" id="tncScroll">
+      <ul>
+        <li>No Refunds or Cancellations. Test. Vegimals decide everything.</li>
+        <li>No Pee or Poopies Once Inside.</li>
+        <li>Show Your Ticket to Baby Oyen or Baby Hitler Buh Sniffers.</li>
+        <li>No Sneaky Foodies. Meowchkins will launch a rock missile to your seats.</li>
+        <li>By buying/using this ticket, you pawmish to follow ALL rules.</li>
+      </ul>
+    </div>
+    <p class="scroll-hint" id="scrollHint">Scroll to the bottom to unlock the checkbox</p>
+    <label class="agree-row">
+      <input type="checkbox" id="agreeCheck" disabled>
+      I've read the T&amp;C and I pawmish to follow them
+    </label>
+    <button class="pick-btn" id="tncConfirm" disabled>Confirm &amp; get ticket</button>
+    <button class="pick-btn" id="tncCancel" style="background:var(--panel-2);color:var(--text);margin-top:8px;">Not yet</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
