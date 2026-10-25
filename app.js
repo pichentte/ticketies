@@ -389,7 +389,7 @@ function initTicketPage(){
     ticket = JSON.parse(localStorage.getItem("pawnchies_ticket"));
   }catch(e){ ticket = null; }
   if (!ticket){
-    location.href = "index.html";
+    location.href = "ticket.html";
     return;
   }
   document.getElementById("ticketMovie").textContent = ticket.movieCode;
@@ -403,7 +403,7 @@ function initTicketPage(){
 
   document.getElementById("printTicket").addEventListener("click", () => window.print());
 
-  // QR code — real, scannable, generated client-side from the ticket details
+  // QR code should be workies
   if (window.QRCode){
     new QRCode(document.getElementById("qrCode"), {
       text: `PAWNCHINEMA | ${ticket.movieCode} | ${ticket.time} | Seat ${ticket.seat} | Ticket ${ticket.ticketNo}`,
