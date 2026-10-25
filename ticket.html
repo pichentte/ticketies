@@ -7,12 +7,36 @@
 <link rel="stylesheet" href="style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
+  <style>
+  /* earthy palette */
+  :root{
+    --bg:#F8F6EE;
+    --panel:#D9C9B2;
+    --panel-2:#6B7F5B;
+    --gold:#C96F4F;
+    --gold-deep:#2E3A2F;
+    --text:#2E3A2F;
+    --muted:#6B7F5B;
+  }
+  body{background:var(--bg);color:var(--text);}
+  .slots-pill{color:var(--gold-deep);}
+  .ticket{background:#F8F6EE;color:#2E3A2F;border:1px solid #D9C9B2;}
+  .ticket-top{background:linear-gradient(135deg,#C96F4F,#D9C9B2);}
+  .ticket-top p{color:#2E3A2F;}
+  .ticket-row{border-bottom-color:#D9C9B2;}
+  .ticket-row span:first-child{color:#6B7F5B;}
+  .btn-print{background:#2E3A2F;color:#F8F6EE;}
+  .btn-home{background:#D9C9B2;color:#2E3A2F;}
+  .receipt-email input{border-color:#D9C9B2;}
+  .receipt-email button{background:#C96F4F;color:#F8F6EE;}
+
   @media print{
     body *{visibility:hidden;}
     .ticket, .ticket *{visibility:visible;}
     .ticket{position:fixed;top:40px;left:50%;transform:translateX(-50%);}
     .ticket-foot, .receipt-email{display:none;}
   }
+</style>
 </style>
 </head>
 <body>
