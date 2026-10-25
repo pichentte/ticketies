@@ -41,13 +41,13 @@ const HALL_NAME = "Grand Kawaii Hall 1";
 
 /* Swap these paths once you have real photos. Put images in /assets. */
 const TEAM = [
-  { name: "Pich", role: "Co-founder & Projectionist", photo: "assets/pich.jpg" },
-  { name: "—", role: "Co-founder & Chief Critic", photo: "assets/partner.jpg" },
-  { name: "Plushkins", role: "Mascot & Snack Inspector", photo: "assets/plushkins.jpg" }
+  { name: "Irfan", role: "Co-founder", photo: "assets/pich.jpg" },
+  { name: "Kyshies", role: "Owner", photo: "assets/partner.jpg" },
+  { name: "Plushkins & Meowchkins", role: "Snackies Inspector", photo: "assets/plushkins.jpg" }
 ];
 
 const ABOUT_COPY = `
-  <p>[placeholder — tell me what you want this to say, or write it yourself directly in app.js]</p>
+  <p>[testing]</p>
 `;
 
 /* 9 rows, G→O, so K sits exactly in the middle row.
@@ -406,7 +406,7 @@ function initTicketPage(){
   // QR code — real, scannable, generated client-side from the ticket details
   if (window.QRCode){
     new QRCode(document.getElementById("qrCode"), {
-      text: `PAWNCHIES CINEMA | ${ticket.movieCode} | ${ticket.time} | Seat ${ticket.seat} | Ticket ${ticket.ticketNo}`,
+      text: `PAWNCHINEMA | ${ticket.movieCode} | ${ticket.time} | Seat ${ticket.seat} | Ticket ${ticket.ticketNo}`,
       width: 140,
       height: 140,
       colorDark: "#141008",
