@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pawnchinema</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!--loading splash-->
+<div class="splash" id="splash">
+  <div class="splash-sprite" aria-hidden="true"></div>
+  <p>Pawnchies Cinema is loading…</p>
+  <div class="bar"><div class="bar-fill"></div></div>
+</div>
+
+<header class="topbar">
+  <div class="brand">PAWNCHINEMA<span class="dot">.</span></div>
+  <div class="topbar-right">
+    <span class="slots-pill" id="slotsPill">73 slots</span>
+  </div>
+</header>
+
+<div class="banner-wrap">
+  <div class="spotlight" id="spotlight"></div>
+  <div class="dots"><span></span><span></span><span class="active"></span><span></span><span></span></div>
+</div>
+
+<div class="quicklinks">
+  <a class="quicklink" href="#browse-section">
+    <span class="circle"></span><span>Movies</span>
+  </a>
+  <a class="quicklink" href="#about-section">
+    <span class="circle"></span><span>About us</span>
+  </a>
+  <a class="quicklink" href="ticket.html">
+    <span class="circle"></span><span>My ticket</span>
+  </a>
+  <button class="quicklink" id="tncQuickLink" type="button">
+    <span class="circle"></span><span>T&amp;C</span>
+  </button>
+</div>
+
+<main>
+  <section id="browse-section">
+    <h2>Now browsing</h2>
+    <div class="browse-row" id="browseRow"></div>
+  </section>
+
+  <section id="about-section">
+    <div class="tab-toggle">
+      <button class="active" data-panel="aboutPanel">About us</button>
+      <button data-panel="teamPanel">Meet the team</button>
+    </div>
+    <div class="tab-panel active" id="aboutPanel">
+      <div class="about-copy" id="aboutCopy"></div>
+    </div>
+    <div class="tab-panel" id="teamPanel">
+      <div class="team-grid" id="teamGrid"></div>
+    </div>
+  </section>
+
+  <section id="tnc-section" class="tnc-box">
+    <h2>Pawnchinema T&amp;C</h2>
+    <ul>
+      <li>No Refunds or Cancellations, Meowchkins gets mad and does pawpissies or pawpunchies. Vegimals decide everything.</li>
+      <li>No Pee or Poopies Once Inside.</li>
+      <li>Show Your Ticket to Baby Oyen or Baby Hitler Buh Sniffers.</li>
+      <li>No Sneaky Foodies. Meowchkins will launch a rock missile to your seats.</li>
+      <li>By buying/using this ticket, you pawmish to follow ALL rules.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="site-footer">© Rockvengers (30120112). All rights reserved.</footer>
+
+<nav class="bottom-tabs">
+  <a href="index.html" class="active">Home</a>
+  <a href="#about-section">About</a>
+  <a href="#tnc-section">T&amp;C</a>
+  <a href="ticket.html">Ticket</a>
+</nav>
+
+<div class="mascot" aria-hidden="true"></div>
+
+<script src="app.js"></script>
+<script>
+  document.getElementById("tncQuickLink").addEventListener("click", () => {
+    document.getElementById("tnc-section").scrollIntoView({behavior:"smooth"});
+  });
+</script>
+</body>
+</html>
