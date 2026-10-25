@@ -38,6 +38,9 @@ img{max-width:100%;}
   letter-spacing:0.01em;
 }
 .brand .dot{color:var(--gold);}
+.desktop-nav{display:none;gap:28px;align-items:center;}
+.desktop-nav a{color:var(--muted);text-decoration:none;font-size:0.9rem;font-weight:600;}
+.desktop-nav a:hover{color:var(--gold);}
 .topbar-right{
   display:flex;
   align-items:center;
@@ -222,6 +225,23 @@ footer.site-footer{
 }
 .bottom-tabs a.active{color:var(--gold);}
 .bottom-tabs .icon{font-size:1.1rem;}
+.bottom-tabs a.nav-center{justify-content:flex-end;}
+.nav-center-circle{
+  width:48px;height:48px;border-radius:50%;
+  margin-top:-26px;
+  background:var(--gold);color:#141008;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(0,0,0,0.45);
+}
+.center-label{font-size:0.68rem;color:var(--muted);margin-top:3px;}
+
+@media (min-width:860px){
+  .desktop-nav{display:flex;}
+  .bottom-tabs{display:none;}
+  .quicklinks{display:none;}
+  body{padding-bottom:0;}
+  main{padding-bottom:60px;}
+}
 
 .detail-hero{display:flex;gap:16px;align-items:flex-start;}
 .detail-hero img{width:120px;height:176px;object-fit:cover;border-radius:12px;}
