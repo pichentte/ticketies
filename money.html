@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cha chink</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="index.html" class="brand" style="text-decoration:none;">← Back</a>
+  <div class="topbar-right"><span class="slots-pill">payment</span></div>
+</header>
+
+<main id="paymentRoot">
+  <section style="margin-top:10px;">
+    <div class="pay-summary">
+      <h3 id="paySummaryMovie"></h3>
+      <p id="paySummaryDetails"></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Payment method</h2>
+    <div class="pay-methods">
+      <label class="pay-method">
+        <input type="radio" name="payMethod" value="kawaii" checked>
+        <div>
+          <div class="pm-name">Kawaii Bank</div>
+          <div class="pm-sub">Card payment</div>
+        </div>
+      </label>
+      <label class="pay-method">
+        <input type="radio" name="payMethod" value="cash">
+        <div>
+          <div class="pm-name">Cash</div>
+          <div class="pm-sub">RM 0.00</div>
+        </div>
+      </label>
+    </div>
+
+    <div class="card-fields" id="cardFields">
+      <input type="text" id="cardNumber" placeholder="Card number" inputmode="numeric" autocomplete="off">
+      <div class="card-row">
+        <input type="text" id="cardExpiry" placeholder="MM/YY" inputmode="numeric" autocomplete="off">
+        <input type="text" id="cardCvv" placeholder="CVV" inputmode="numeric" autocomplete="off">
+      </div>
+    </div>
+  </section>
+
+  <p class="pay-amount" id="payAmount"></p>
+  <button class="pick-btn" id="payBtn" disabled>Pay now</button>
+</main>
+
+<footer class="site-footer">© Rockvengers (30120112). All rights reserved.</footer>
+
+<div class="mascot" aria-hidden="true"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
