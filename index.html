@@ -6,6 +6,10 @@
 <title>Pawnchinema</title>
 <link rel="stylesheet" href="style.css">
 </head>
+<style>
+  /* jet black and wine ash, testing */
+  :root{ --bg: linear-gradient(160deg, rgb(29,29,29), rgb(50,41,47)); }
+</style>
 <body>
 
 <!--loading splash-->
@@ -17,6 +21,12 @@
 
 <header class="topbar">
   <div class="brand">PAWNCHINEMA<span class="dot">.</span></div>
+  <nav class="desktop-nav">
+    <a href="#browse-section">Movies</a>
+    <a href="#about-section">About us</a>
+    <a href="#tnc-section">T&amp;C</a>
+    <a href="ticket.html">My ticket</a>
+  </nav>
   <div class="topbar-right">
     <span class="slots-pill" id="slotsPill">73 slots</span>
   </div>
@@ -78,8 +88,20 @@
 <nav class="bottom-tabs">
   <a href="index.html" class="active">Home</a>
   <a href="#about-section">About</a>
+  <a href="ticket.html" class="nav-center">
+    <span class="nav-center-circle">
+      <svg viewBox="0 0 48 48" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="16" cy="10" r="4"></circle>
+        <circle cx="24" cy="7" r="4.5"></circle>
+        <circle cx="32" cy="10" r="4"></circle>
+        <path d="M6 18 h36 a4 4 0 0 1 0 8 a4 4 0 0 0 0 8 h-36 a4 4 0 0 1 0 -8 a4 4 0 0 0 0 -8 z"></path>
+        <line x1="24" y1="18" x2="24" y2="34" stroke-dasharray="3 3"></line>
+      </svg>
+    </span>
+    <span class="center-label">Ticket</span>
+  </a>
   <a href="#tnc-section">T&amp;C</a>
-  <a href="ticket.html">Ticket</a>
+  <a href="#browse-section">Movies</a>
 </nav>
 
 <div class="mascot" aria-hidden="true"></div>
