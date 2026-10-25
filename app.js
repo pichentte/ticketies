@@ -96,7 +96,7 @@ function renderBrowseRow(){
   const row = document.getElementById("browseRow");
   if (!row) return;
   row.innerHTML = MOVIES.map(m => `
-    <a class="poster-card" href="movie.html?id=${m.id}">
+    <a class="poster-card" href="main.html?id=${m.id}">
       <img src="${m.poster}" alt="${m.id.toUpperCase()} poster" loading="lazy">
       <div class="code">${m.id.toUpperCase()}${m.tag ? " · " + m.tag : ""}</div>
       <div class="${slotsClass(m.slotsLeft)}">${m.slotsLeft} slots left</div>
@@ -276,7 +276,7 @@ function initMoviePage(){
   });
 
   function proceedToTicket(){
-    // this is a *booking draft* — not the final ticket yet, payment.html
+    // this is a *booking draft* — not the final ticket yet, money.html
     // adds the payment method and turns it into the real ticket
     const booking = {
       movieCode: movie.id.toUpperCase() + (movie.tag ? " · " + movie.tag : ""),
@@ -285,11 +285,11 @@ function initMoviePage(){
       hall: HALL_NAME
     };
     localStorage.setItem("pawnchies_booking", JSON.stringify(booking));
-    location.href = "payment.html";
+    location.href = "money.html";
   }
 }
 
-/* ---------------- payment page (payment.html) ---------------- */
+/* ---------------- payment page (money.html) ---------------- */
 function initPaymentPage(){
   const root = document.getElementById("paymentRoot");
   if (!root) return;
