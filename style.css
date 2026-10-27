@@ -830,3 +830,16 @@ footer.site-footer{
 .et-barcode{width:4.6cqw;height:15.8cqw;}
 .et-barcode svg{width:15.8cqw;height:4.6cqw;}
 .et-info{font-size:.95cqw;line-height:1.45;letter-spacing:.02em;white-space:nowrap;max-height:10cqw;}
+
+/* ---------------- round 6 ---------------- */
+/* back strip: only a big barcode, turned to run down the strip */
+.et-metal{display:flex;align-items:center;justify-content:center;padding:2.4cqw;}
+.et-metal .et-barcode{position:relative;width:11cqw;height:26cqw;}
+.et-metal .et-barcode svg{width:26cqw;height:11cqw;}
+.et-stub{gap:2.2cqw;}
+
+/* payment: tax-inclusive receipt split */
+.pay-tax{display:grid;grid-template-columns:1fr auto;gap:2px 12px;margin-top:10px;font-size:0.82rem;color:var(--muted);}
+.pay-tax b{color:var(--text);padding-top:4px;border-top:1px solid var(--panel-2);margin-top:4px;}
+/* JsBarcode puts an inline transform on its <svg>, which cancelled the rotation */
+.et-metal .et-barcode svg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(90deg) !important;}

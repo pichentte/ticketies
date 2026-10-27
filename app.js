@@ -109,8 +109,36 @@ function setCurrency(code){
   try{ localStorage.setItem(CURRENCY_KEY, code); }catch(e){}
 }
 
-function formatPrice(gbp){
-  return getCurrency() === "GBP" ? "£" + gbp.toFixed(2) : "RM " + (gbp / gbpPerMyr).toFixed(2);
+/* one seat's price in the current currency. MYR is rounded cinema-style to .90
+   (£5.99 -> RM 32.90, £10.99 -> RM 59.90) so it never shows odd cents */
+function seatAmount(gbp){
+  if (getCurrency() === "GBP") return Math.round(gbp * 100) / 100;
+  if (gbp <= 0) return 0;
+  return Math.max(0.9, Math.round(gbp / gbpPerMyr) - 0.1);
+}
+
+function formatAmount(n){
+  return (getCurrency() === "GBP" ? "£" : "RM ") + n.toFixed(2);
+}
+
+function formatPrice(gbp){ // a single seat's price
+  return formatAmount(seatAmount(gbp));
+}
+
+/* totals add up the rounded seat prices, so the receipt always sums correctly */
+function formatTotal(seatGbps){
+  return formatAmount(seatGbps.reduce((sum, g) => sum + seatAmount(g), 0));
+}
+
+/* prices are tax-inclusive: UK cinema tickets carry 20% VAT, Malaysian ones 25% entertainment duty */
+function taxInfo(){
+  return getCurrency() === "GBP" ? { name: "VAT", rate: 0.2 } : { name: "Entertainment duty", rate: 0.25 };
+}
+
+function taxLines(totalAmount){
+  const { name, rate } = taxInfo();
+  const net = Math.round(totalAmount / (1 + rate) * 100) / 100;
+  return { name, pct: Math.round(rate * 100), net: formatAmount(net), tax: formatAmount(Math.round((totalAmount - net) * 100) / 100), total: formatAmount(totalAmount) };
 }
 
 /* rating for the country matching the currency, as a styled badge */
@@ -285,6 +313,13 @@ async function sendTicketEmail(t, email){
           total: t.total,
           ticket_numbers: t.numbers.map(n => String(n).padStart(6, "0")).join(", "),
           issued: t.issued,
+          name: t.name || "Guest",
+          payment_method: t.payMethod + (t.cardLast4 ? " ····" + t.cardLast4 : ""),
+          ticket_types: t.types.map(id => ticketType(id).name).join(", "),
+          subtotal: t.tax ? t.tax.net : t.total,
+          tax_label: t.tax ? `${t.tax.name} ${t.tax.pct}% (incl.)` : "Tax (incl.)",
+          tax_amount: t.tax ? t.tax.tax : "",
+          logo_url: new URL("assets/bunchies-logo.png", location.href).href,
           ticket_link: ticketLink(t)
         }
       })
@@ -708,7 +743,8 @@ function initMoviePage(){
   // seats in order get Stinki first, then Kawaii, then Kawaii Babies
   const seatTypes = () => chosenSeats.map((_, i) =>
     i < stinkiCount() ? "stinki" : i < stinkiCount() + typeCount.kawaii ? "kawaii" : "babies");
-  const totalGbp = () => seatTypes().reduce((sum, id) => sum + hall.priceGbp * ticketType(id).pay, 0);
+  const seatGbps = () => seatTypes().map(id => hall.priceGbp * ticketType(id).pay);
+  const totalGbp = () => seatGbps().reduce((a, b) => a + b, 0);
   function fitTypes(){ // seats removed: take back from Babies, then Kawaii
     while (stinkiCount() < 0){
       if (typeCount.babies) typeCount.babies--; else typeCount.kawaii--;
@@ -743,7 +779,7 @@ function initMoviePage(){
     const n = chosenSeats.length;
     if (chosenTime && n){
       const full = n === MAX_SEATS ? ` (max ${MAX_SEATS})` : "";
-      summary.textContent = `${movieLabel(movie)} · ${displayTime(chosenTime)} ${tzLabel()} · ${n > 1 ? "Seats" : "Seat"} ${chosenSeats.join(", ")}${full} · ${formatPrice(totalGbp())}`;
+      summary.textContent = `${movieLabel(movie)} · ${displayTime(chosenTime)} ${tzLabel()} · ${n > 1 ? "Seats" : "Seat"} ${chosenSeats.join(", ")}${full} · ${formatTotal(seatGbps())}`;
       btn.disabled = false;
     } else {
       summary.textContent = "Pick a showtime and your seats to continue";
@@ -806,11 +842,16 @@ function initPaymentPage(){
   const typeLines = () => TICKET_TYPES
     .map(t => ({ t, n: types.filter(id => id === t.id).length }))
     .filter(x => x.n)
-    .map(x => `${x.n}× ${x.t.name} ${formatPrice(priceGbp * x.t.pay * x.n)}`)
+    .map(x => `${x.n}× ${x.t.name} ${formatTotal(Array(x.n).fill(priceGbp * x.t.pay))}`)
     .join(" · ");
   priceRenderers.push(() => {
     document.getElementById("paySummaryDetails").textContent = `${displayTime(booking.time)} ${tzLabel()} · ${seatText} · ${booking.hall}`;
     document.getElementById("payTypes").textContent = typeLines();
+    // tax is already inside the price; show the split like a real receipt
+    const amount = seatGbp.reduce((sum, g) => sum + seatAmount(g), 0);
+    const tx = taxLines(amount);
+    document.getElementById("payTax").innerHTML =
+      `<span>Subtotal</span><span>${tx.net}</span><span>${tx.name} ${tx.pct}% (incl.)</span><span>${tx.tax}</span><b>Total</b><b>${tx.total}</b>`;
   });
 
   const methodInputs = document.querySelectorAll('input[name="payMethod"]');
@@ -833,7 +874,7 @@ function initPaymentPage(){
       payAmount.textContent = `Pay ${formatPrice(0)} (Free)`;
     } else {
       cardFields.style.display = "block";
-      payAmount.textContent = `Pay ${formatPrice(totalGbp)} with Kawaii Bank`;
+      payAmount.textContent = `Pay ${formatTotal(seatGbp)} with Kawaii Bank`;
     }
     validateForm();
   }
@@ -857,6 +898,9 @@ function initPaymentPage(){
   });
 
   // the ticket gets emailed here; optional, but if typed it has to look like an email
+  const payName = document.getElementById("payName");
+  payName.addEventListener("input", validateForm);
+  const nameOk = () => payName.value.trim().length > 0;
   const payEmail = document.getElementById("payEmail");
   const payEmailNote = document.getElementById("payEmailNote");
   const emailOk = () => !payEmail.value.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payEmail.value.trim());
@@ -869,13 +913,13 @@ function initPaymentPage(){
     const method = currentMethod();
     payEmail.classList.toggle("bad", !emailOk());
     if (method === "cash"){
-      payBtn.disabled = !emailOk();
+      payBtn.disabled = !(emailOk() && nameOk());
       return;
     }
     const numOk = cardNumber.value.replace(/\D/g, "").length === 16;
     const expOk = /^\d{2}\/\d{2}$/.test(cardExpiry.value);
     const cvvOk = cardCvv.value.length === 3;
-    payBtn.disabled = !(numOk && expOk && cvvOk && emailOk());
+    payBtn.disabled = !(numOk && expOk && cvvOk && emailOk() && nameOk());
   }
   refreshPrices(); // summary, type breakdown and pay button
 
@@ -936,7 +980,9 @@ function initPaymentPage(){
       hallId: booking.hallId || null,
       hall: booking.hall,
       seatPrices: seatGbp.map(g => formatPrice(free ? 0 : g)),
-      total: formatPrice(free ? 0 : totalGbp),
+      total: formatTotal(free ? [0] : seatGbp),
+      tax: taxLines(free ? 0 : seatGbp.reduce((sum, g) => sum + seatAmount(g), 0)),
+      name: payName.value.trim(),
       payMethod: free ? "Cash (Free)" : "Kawaii Bank",
       cardLast4: free ? null : cardNumber.value.replace(/\D/g, "").slice(-4),
       numbers: seats.map(() => nextTicketNumber()),
@@ -986,7 +1032,6 @@ function eticketHtml(t, i){
   const hallName = ((HALLS[t.hallId] && HALLS[t.hallId].name) || t.hall).replace(/\s*\(placeholder\)/i, "").toUpperCase();
   const type = ticketType(t.types[i]);
   const price = t.seatPrices[i];
-  const num = String(t.numbers[i]).padStart(6, "0");
   // title sits in the ~36cqw left of the poster, wrapping onto up to three lines
   const font = movie.titleFont || "Bebas Neue";
   const fw = TITLE_FONT_WIDTH[font] || 0.6;
@@ -1010,19 +1055,14 @@ function eticketHtml(t, i){
       <div class="et-stub">
         <div><span>TICKET PRICE</span><b>${escapeHtml(price)}</b><em>${escapeHtml(type.name.toUpperCase())}</em></div>
         <div><span>DATE ISSUED</span><b>${escapeHtml(t.issued)}</b></div>
+        ${t.name ? `<div><span>PURCHASED BY</span><b>${escapeHtml(t.name.toUpperCase())}</b></div>` : ""}
         <div><span>${timeLabel}</span>${timeLines.map(l => `<b>${escapeHtml(l)}</b>`).join("")}</div>
       </div>
     </div></div>
     <div class="eticket-scroll"><div class="eticket back">
       <div class="et-metal ${metal}">
-        <div class="et-num">${num}</div>
-        <div class="et-side">
-          <div class="et-bc-row">
-            <div class="et-code">${escapeHtml(code)}</div>
-            <div class="et-barcode"><svg data-code="${escapeHtml(code)}"></svg></div>
-          </div>
-          <div class="et-info">PRICE: ${escapeHtml(price)}<br>${escapeHtml(type.name.toUpperCase())}<br>${timeLabel}<br>${escapeHtml(timeLines[0])}<br>${escapeHtml(hallName)}</div>
-        </div>
+        <!-- just the barcode on the strip (it still encodes the ticket type's name) -->
+        <div class="et-barcode"><svg data-code="${escapeHtml(code)}"></svg></div>
       </div>
       <div class="et-terms">
         <h4>PAWNCHINEMA TERMS AND CONDITIONS</h4>
@@ -1056,7 +1096,7 @@ function initTicketPage(){
 
   document.getElementById("ticketList").innerHTML = ticket.seats.map((_, i) => eticketHtml(ticket, i)).join("");
   document.getElementById("ticketSummary").textContent =
-    `${ticket.title} · ${ticket.seats.length > 1 ? "Seats" : "Seat"} ${ticket.seats.join(", ")} · Total ${ticket.total} · ${ticket.payMethod}${ticket.cardLast4 ? " ····" + ticket.cardLast4 : ""}`;
+    `${ticket.name ? "Purchased by " + ticket.name + " · " : ""}${ticket.title} · ${ticket.seats.length > 1 ? "Seats" : "Seat"} ${ticket.seats.join(", ")} · Total ${ticket.total}${ticket.tax ? ` (incl. ${ticket.tax.name} ${ticket.tax.tax})` : ""} · ${ticket.payMethod}${ticket.cardLast4 ? " ····" + ticket.cardLast4 : ""}`;
 
   if (window.JsBarcode){
     document.querySelectorAll(".et-barcode svg").forEach(svg => {
@@ -1099,6 +1139,26 @@ function initTicketPage(){
   });
 }
 
+/* ---------------- testing: fresh ticket history on every deploy ----------------
+   While testing, each new push to main wipes the saved ticket and restarts the
+   000001 numbering. When it's time to "launch movie ticket history", set this
+   to true and tickets will be kept across deploys. */
+const KEEP_TICKET_HISTORY = false;
+
+async function resetHistoryOnNewDeploy(){
+  if (KEEP_TICKET_HISTORY) return;
+  try{
+    // GitHub Pages gives app.js a new ETag / Last-Modified on every deploy
+    const res = await fetch("app.js", { method: "HEAD", cache: "no-store" });
+    const version = res.headers.get("ETag") || res.headers.get("Last-Modified");
+    if (!version) return;
+    if (localStorage.getItem("pawnchies_build") !== version){
+      ["pawnchies_ticket", "pawnchies_ticket_seq"].forEach(k => localStorage.removeItem(k));
+      localStorage.setItem("pawnchies_build", version);
+    }
+  }catch(e){ /* offline or opened as a file: leave history alone */ }
+}
+
 /* ---------------- boot ---------------- */
 document.addEventListener("DOMContentLoaded", () => {
   applyCachedRate();
@@ -1116,7 +1176,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupSplash();
   initMoviePage();
   initPaymentPage();
-  initTicketPage();
+  resetHistoryOnNewDeploy().then(initTicketPage); // ticket page waits so it never flashes a wiped ticket
 
   // re-render once a fresh live rate arrives (first visit starts on the fallback rate)
   loadRate().then(changed => { if (changed) refreshPrices(); });
