@@ -24,7 +24,14 @@
 </div>
 
 <header class="topbar">
-  <a class="brand" href="index.html"><img class="brand-logo" src="assets/bunchies-logo.png" alt=""><span class="brand-name">Pawnchinema</span></a>
+  <a class="brand brand-mark" href="index.html" aria-label="Pawnchinema">
+    <img class="brand-logo" src="assets/bunchies-logo.png" alt="">
+    <!-- wordmark curves under the bunny like a smile -->
+    <svg class="brand-arc" viewBox="0 0 160 46" aria-hidden="true">
+      <path id="brandArc" d="M6,8 Q80,52 154,8" fill="none"/>
+      <text><textPath href="#brandArc" startOffset="50%" text-anchor="middle" textLength="140" lengthAdjust="spacingAndGlyphs">Pawnchinema</textPath></text>
+    </svg>
+  </a>
   <nav class="desktop-nav">
     <a href="#browse-section">Movies</a>
     <a href="#about-section">About us</a>
@@ -36,7 +43,6 @@
       <option value="MYR">MYR · RM</option>
       <option value="GBP">GBP · £</option>
     </select>
-    <span class="slots-pill" id="slotsPill">73 slots</span>
   </div>
 </header>
 
@@ -67,13 +73,13 @@
 </div>
 
 <main class="home">
+  <!-- landscape shelves (IMAX / halls) -->
+  <div id="shelves"></div>
+
   <section id="browse-section">
-    <h2>Now browsing</h2>
+    <h2>All movies</h2>
     <div class="browse-row" id="browseRow"></div>
   </section>
-
-  <!-- mobile only: landscape shelves -->
-  <div id="shelves"></div>
 
   <section id="about-section">
     <div class="tab-toggle">

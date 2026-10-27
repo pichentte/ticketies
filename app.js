@@ -2,8 +2,8 @@
    MOVIE DATA — edit this array to add/remove movies.
    id must be unique and lowercase (m1, m2, m3...). Code shown on site
    is just id.toUpperCase(), so "m1" displays as "M1".
-   slotsLeft is just a display number — edit it directly, or compute it
-   from the seat map if you want it to be fully accurate.
+   times are Malaysia time (MYT); the site shows them in UK time when the
+   currency is GBP. trailer is a YouTube video id.
    hall must be one of the HALLS keys below.
    ===================================================================== */
 const SHOW_TITLES = true; // true = show film names instead of M1, M2...
@@ -20,52 +20,52 @@ const MAX_SEATS = 8; // most seats one booking can hold
 
 const MOVIES = [
   { id: "m1", title: "Burning", year: 2018, hall: "h1", runtime: 148, rating: "15",
-    times: ["6:30 PM", "9:30 PM"], slotsLeft: 14,
+    times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "irBLY-Ev9vo",
     poster: "https://image.tmdb.org/t/p/w500/kXiF80o74fE9gf3Utf9moAI7ar0.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/qQEt2FqF8McryFBNX30dyDJKiEK.jpg",
     overview: "A part-time courier runs into a girl from his old neighbourhood, who asks him to feed her cat while she travels. When she comes back with a wealthy, enigmatic man and then disappears, his suspicion grows." },
   { id: "m2", title: "Bodies Bodies Bodies", year: 2022, hall: "h2", runtime: 94, rating: "15",
-    times: ["7:00 PM", "9:15 PM"], slotsLeft: 32,
+    times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "cTzGKsZjBOY",
     poster: "https://image.tmdb.org/t/p/w500/hSuTjDmqRdy7Dii8ymnF2WILTeP.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/qYCl28dMJwRTzlbteTrW75szZPN.jpg",
     overview: "A group of wealthy twenty-somethings throw a hurricane party at a remote mansion and play a murder game. When one of them turns up dead, paranoia and accusations take over the night." },
   { id: "m3", title: "Your Name", year: 2016, hall: "h1", runtime: 106, rating: "12A",
-    times: ["6:00 PM", "8:30 PM"], slotsLeft: 6,
+    times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "TYku4P7MHdo",
     poster: "https://image.tmdb.org/t/p/w500/vfJFJPepRKapMd5G2ro7klIRysq.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/mMtUybQ6hL24FXo0F3Z4j2KG7kZ.jpg",
     overview: "A country girl in Japan and a boy in Tokyo start swapping bodies in their sleep. As they learn each other's lives through notes, they try to find each other, and a bigger secret comes out." },
   { id: "m4", title: "Wolfwalkers", year: 2020, hall: "imax", runtime: 102, rating: "PG",
-    times: ["5:30 PM", "8:00 PM"], slotsLeft: 21,
+    times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "d_Z_tybgPgg",
     poster: "https://image.tmdb.org/t/p/w500/vqGiNbdc2sDwsnivMMYzwAoSSu6.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/3zTbERSBLh7waK9811RTKGAcG86.jpg",
     overview: "In 17th-century Ireland, a young apprentice hunter arrives with her father to wipe out the last wolf pack. In the forest she befriends a free-spirited girl who can turn into a wolf." },
   { id: "m5", title: "Parasite", year: 2019, hall: "h1", runtime: 133, rating: "15",
-    times: ["7:30 PM", "10:00 PM"], slotsLeft: 9,
+    times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "isOGD_7hNIY",
     poster: "https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/TU9NIjwzjoKPwQHoHshkFcQUCG.jpg",
     overview: "A struggling family gets themselves hired by a wealthy household one by one, posing as unrelated and qualified workers. Things go wrong as the two families' lives get tangled together." },
   { id: "m6", title: "Hit Man", year: 2024, hall: "h2", runtime: 116, rating: "15",
-    times: ["6:45 PM", "9:15 PM"], slotsLeft: 27,
+    times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "9a7C7Bxsm90",
     poster: "https://image.tmdb.org/t/p/w500/oil3EZwKFp3CWxZnfGfGglesvm9.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/nv6F6tz7r61DUhE7zgHwLJFcTYp.jpg",
     overview: "A mild-mannered professor moonlights as a fake hit man in police stings. He falls for a client who wants her husband dead, and the line between his act and reality starts to blur." },
   { id: "m7", title: "Novocaine", year: 2025, hall: "imax", runtime: 110, rating: "15",
-    times: ["7:15 PM", "9:45 PM"], slotsLeft: 18,
+    times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "99BLnkAlC1M",
     poster: "https://image.tmdb.org/t/p/w500/xmMHGz9dVRaMY6rRAlEX4W0Wdhm.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/lyBH2mFFU6qrHwD5QKotL2JnEb6.jpg",
     overview: "A bank assistant manager who can't feel physical pain is pulled into a robbery when the girl he likes is taken hostage. He turns his condition into his advantage." },
   { id: "m8", title: "Companion", year: 2025, hall: "h1", runtime: 97, rating: "15",
-    times: ["6:15 PM", "8:45 PM"], slotsLeft: 11,
+    times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "Qr_kX0D3DNA",
     poster: "https://image.tmdb.org/t/p/w500/oCoTgC3UyWGfyQ9thE10ulWR7bn.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/sc1abgWNXc29wSBaerrjGBih06l.jpg",
     overview: "Iris heads to a lake house with her boyfriend and his friends for a weekend away, and finds out something about their relationship that she was never meant to know." },
   { id: "m9", title: "Strange Darling", year: 2024, hall: "h2", runtime: 97, rating: "18",
-    times: ["8:00 PM", "10:15 PM"], slotsLeft: 24,
+    times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "F_F3f_Fqtrc",
     poster: "https://image.tmdb.org/t/p/w500/kWNCRgt3ocv19bYO0sk7TRuZuFY.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/I4ofwq3XfmwXAETUs5pjubcMJ0.jpg",
     overview: "A one-night stand turns into a night of violence, told out of order in six chapters." },
   { id: "m10", title: "Heretic", year: 2024, hall: "imax", runtime: 111, rating: "15",
-    times: ["7:45 PM", "10:00 PM"], slotsLeft: 5,
+    times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "jpWUOxRozZg",
     poster: "https://image.tmdb.org/t/p/w500/fr96XzlzsONrQrGfdLMiwtQjott.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/ag66gJCiZ06q1GSJuQlhGLi3Udx.jpg",
     overview: "Two young missionaries visit the home of a friendly, polite man to share their faith, and find themselves stuck in a debate they can't walk out of." }
@@ -171,13 +171,26 @@ function londonOffset(date){
 
 const MYT_OFFSET = 8 * 60; // Malaysia is UTC+8 all year
 
-/* showtime (UK) + runtime -> { uk: "6:30 – 9:00 PM", myt: "02:30 – 05:00 AM" } */
+/* showtime (MYT) + runtime -> { uk: "4:30 – 6:15 PM", myt: "12:30 – 02:15 AM" } */
 function showWindow(timeStr, runtime, date){
   const start = parseTime(timeStr);
   if (start == null) return { uk: timeStr, myt: "" };
   const end = start + Math.ceil((runtime || 120) / 5) * 5;
-  const shift = MYT_OFFSET - londonOffset(date || new Date());
-  return { uk: fmtRange(start, end, false), myt: fmtRange(start + shift, end + shift, true) };
+  const shift = londonOffset(date || new Date()) - MYT_OFFSET;
+  return { uk: fmtRange(start + shift, end + shift, false), myt: fmtRange(start, end, true) };
+}
+
+/* the currency picks the time zone too: MYR -> Malaysia time, GBP -> UK time */
+function tzLabel(){
+  return getCurrency() === "GBP" ? "UK" : "MYT";
+}
+
+function displayTime(mytStr){
+  if (getCurrency() !== "GBP") return mytStr;
+  const start = parseTime(mytStr);
+  if (start == null) return mytStr;
+  const c = clockParts(start + londonOffset(new Date()) - MYT_OFFSET, false);
+  return `${c.text} ${c.ampm}`;
 }
 
 /* ---------------- e-ticket bits ---------------- */
@@ -257,9 +270,9 @@ const SPOTLIGHT_ID = "m1";
 
 /* Swap these paths once you have real photos. Put images in /assets. */
 const TEAM = [
-  { name: "Irfan", role: "Co-founder", photo: "assets/pich.jpg" },
-  { name: "Kyshies", role: "Owner", photo: "assets/partner.jpg" },
-  { name: "Plushkins & Meowchkins", role: "Snackies Inspector", photo: "assets/plushkins.jpg" }
+  { name: "Irfan", role: "Co-founder", photo: "assets/team/irfan.jpg" },
+  { name: "Kyshies", role: "Owner", photo: "assets/team/Kyshies.jpg" },
+  { name: "Plushkins & Meowchkins", role: "Snackies Inspector", photo: "assets/team/Plushkins.jpg" }
 ];
 
 const ABOUT_COPY = `
@@ -270,9 +283,6 @@ function getMovie(id){
   return MOVIES.find(m => m.id === id);
 }
 
-function slotsClass(n){
-  return n <= 8 ? "slots low" : "slots";
-}
 
 /* deterministic pseudo-random so the same movie always shows the same
    "taken" seats instead of reshuffling on every reload */
@@ -303,11 +313,10 @@ function renderBrowseRow(){
   const row = document.getElementById("browseRow");
   if (!row) return;
   row.innerHTML = MOVIES.map(m => `
-    <a class="poster-card" href="main.html?id=${m.id}">
-      ${posterHtml(m)}
+    <a class="poster-card" href="main.html?id=${m.id}" data-trailer="${m.trailer}">
+      <div class="poster-wrap trailer-host">${posterHtml(m)}</div>
       <div class="code">${movieLabel(m)}</div>
       <div class="price-tag">${formatPrice(hallOf(m).price)}</div>
-      <div class="${slotsClass(m.slotsLeft)}">${m.slotsLeft} slots left</div>
     </a>
   `).join("");
 }
@@ -321,7 +330,7 @@ function renderSpotlight(){
     <div>
       <span class="tag">THIS WEEK</span>
       <h3>${movieLabel(m)}</h3>
-      <p>${hallOf(m).name} · ${m.times.join(" / ")} · ${m.slotsLeft} slots left</p>
+      <p>${hallOf(m).name} · ${m.times.map(displayTime).join(" / ")} ${tzLabel()}</p>
       <p class="price-tag">${formatPrice(hallOf(m).price)} per seat</p>
     </div>`;
 }
@@ -339,11 +348,12 @@ function renderHero(){
   if (!track) return;
   const keep = track.scrollLeft; // re-render on currency change must not jump slides
   track.innerHTML = HERO_IDS.map(getMovie).filter(Boolean).map(m => `
-    <a class="hero-slide" href="main.html?id=${m.id}" style="background-image:url('${m.backdrop}')">
+    <a class="hero-slide trailer-host" href="main.html?id=${m.id}" data-trailer="${m.trailer}" style="background-image:url('${m.backdrop}')">
       <div class="hero-shade"></div>
       <div class="hero-info">
         <h2 class="hero-title">${escapeHtml(m.title)}</h2>
         <p class="hero-meta">${escapeHtml(movieMeta(m))}</p>
+        <p class="hero-desc">${escapeHtml(m.overview)}</p>
         <span class="hero-btn">Get tickets · ${formatPrice(hallOf(m).price)}</span>
       </div>
     </a>`).join("");
@@ -364,14 +374,98 @@ function setupHeroCarousel(){
   track.addEventListener("scroll", () => requestAnimationFrame(paint), { passive: true });
   paint();
 
-  // auto-advance every 5s, but leave it alone for a while after the user swipes
-  let lastTouch = 0;
-  ["touchstart", "pointerdown", "wheel"].forEach(ev => track.addEventListener(ev, () => { lastTouch = Date.now(); }, { passive: true }));
-  setInterval(() => {
-    if (Date.now() - lastTouch < 8000 || !track.clientWidth || document.hidden) return;
-    const next = (current() + 1) % count;
-    track.scrollTo({ left: next * track.clientWidth, behavior: "smooth" });
-  }, 5000);
+  if (canHover()){
+    // desktop: rotate every 8s unless the cursor is on it (a trailer is playing)
+    setInterval(() => {
+      if (track.matches(":hover") || !track.clientWidth || document.hidden) return;
+      track.scrollTo({ left: (current() + 1) % count * track.clientWidth, behavior: "smooth" });
+    }, 8000);
+    return;
+  }
+  // phone: no hover, so the slide you land on plays its trailer after 2s
+  let settle = null;
+  const playActive = () => {
+    const slide = track.children[current()];
+    [...track.children].forEach(s => { if (s !== slide) stopTrailer(s); });
+    if (slide && !slide.querySelector(".trailer-frame")) playTrailer(slide, slide.dataset.trailer);
+  };
+  track.addEventListener("scroll", () => {
+    clearTimeout(settle);
+    [...track.children].forEach(stopTrailer);
+    settle = setTimeout(playActive, 2000);
+  }, { passive: true });
+  settle = setTimeout(playActive, 2000);
+}
+
+/* ---------------- trailers (YouTube, muted previews) ---------------- */
+function canHover(){
+  return window.matchMedia("(hover:hover) and (pointer:fine)").matches;
+}
+
+function trailerUrl(key, preview){
+  const q = preview
+    ? `autoplay=1&mute=1&controls=0&playsinline=1&loop=1&playlist=${key}&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1`
+    : "autoplay=1&playsinline=1&rel=0&modestbranding=1";
+  return `https://www.youtube-nocookie.com/embed/${key}?${q}`;
+}
+
+/* covers the host like background-size:cover, fades in once loaded */
+function playTrailer(host, key){
+  if (!host || !key) return;
+  stopTrailer(host);
+  const r = host.getBoundingClientRect();
+  const h = Math.max(r.height, r.width * 9 / 16) * 1.12; // slight zoom crops YouTube's edge chrome
+  const frame = document.createElement("iframe");
+  frame.className = "trailer-frame";
+  frame.allow = "autoplay; encrypted-media; picture-in-picture";
+  frame.tabIndex = -1;
+  frame.setAttribute("aria-hidden", "true");
+  frame.style.width = (h * 16 / 9) + "px";
+  frame.style.height = h + "px";
+  frame.addEventListener("load", () => setTimeout(() => frame.classList.add("on"), 400));
+  frame.src = trailerUrl(key, true);
+  host.insertBefore(frame, host.firstChild);
+}
+
+function stopTrailer(host){
+  if (host) host.querySelectorAll(".trailer-frame").forEach(f => f.remove());
+}
+
+/* desktop: hover any card with data-trailer for 0.6s to preview it */
+function setupHoverTrailers(){
+  if (!canHover()) return;
+  let timer = null, active = null;
+  const stop = () => {
+    clearTimeout(timer);
+    if (active) stopTrailer(active.querySelector(".trailer-host") || active);
+    active = null;
+  };
+  document.addEventListener("pointerover", e => {
+    const card = e.target.closest("[data-trailer]");
+    if (!card || card === active) return;
+    stop();
+    active = card;
+    timer = setTimeout(() => {
+      const host = card.classList.contains("trailer-host") ? card : card.querySelector(".trailer-host");
+      playTrailer(host, card.dataset.trailer);
+    }, 600);
+  });
+  document.addEventListener("pointerout", e => {
+    if (!active || (e.relatedTarget && active.contains(e.relatedTarget))) return;
+    stop();
+  });
+}
+
+/* full trailer with sound, in a popup (movie page button) */
+function openTrailerModal(key){
+  const modal = document.createElement("div");
+  modal.className = "modal-backdrop open trailer-modal";
+  modal.innerHTML = `<div class="trailer-box"><button class="trailer-close" aria-label="Close">✕</button>
+    <iframe src="${trailerUrl(key, false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
+  const close = () => modal.remove();
+  modal.addEventListener("click", e => { if (e.target === modal || e.target.closest(".trailer-close")) close(); });
+  document.addEventListener("keydown", function esc(e){ if (e.key === "Escape"){ close(); document.removeEventListener("keydown", esc); } });
+  document.body.appendChild(modal);
 }
 
 function renderShelves(){
@@ -382,8 +476,8 @@ function renderShelves(){
       <h2>${title}</h2>
       <div class="shelf-row">
         ${list.map(m => `
-          <a class="wide-card" href="main.html?id=${m.id}">
-            <div class="wide-art" style="background-image:url('${m.backdrop}')"></div>
+          <a class="wide-card" href="main.html?id=${m.id}" data-trailer="${m.trailer}">
+            <div class="wide-art trailer-host" style="background-image:url('${m.backdrop}')"></div>
             <div class="wide-title">${escapeHtml(m.title)}</div>
             <div class="wide-meta">${escapeHtml(m.rating)} · ${fmtRuntime(m.runtime)} · <span class="price-tag">${formatPrice(hallOf(m).price)}</span></div>
           </a>`).join("")}
@@ -464,17 +558,24 @@ function initMoviePage(){
   const hall = hallOf(movie);
   if (movie.poster) document.getElementById("detailPoster").src = movie.poster;
   document.getElementById("detailCode").textContent = movieLabel(movie);
-  document.getElementById("detailSlots").textContent = `${movie.slotsLeft} slots left · ${hall.name}`;
+  document.getElementById("detailSlots").textContent = hall.name;
   document.getElementById("detailDesc").textContent = movie.overview || "";
   document.getElementById("detailMeta").textContent = movieMeta(movie);
   document.getElementById("detailBackdrop").style.backgroundImage = `url('${movie.backdrop}')`;
+  document.getElementById("trailerBtn").addEventListener("click", () => openTrailerModal(movie.trailer));
   const priceEl = document.getElementById("detailPrice");
   priceRenderers.push(() => { priceEl.textContent = `${formatPrice(hall.price)} per seat`; });
 
   // showtimes
   let chosenTime = null;
   const timesEl = document.getElementById("showtimes");
-  timesEl.innerHTML = movie.times.map(t => `<button class="showtime-btn" data-time="${t}">${t}</button>`).join("");
+  const paintTimes = () => {
+    timesEl.querySelectorAll(".showtime-btn").forEach(b => { b.textContent = displayTime(b.dataset.time); });
+    document.getElementById("showtimeZone").textContent = tzLabel() === "UK" ? "UK time" : "Malaysia time";
+  };
+  timesEl.innerHTML = movie.times.map(t => `<button class="showtime-btn" data-time="${t}"></button>`).join("");
+  paintTimes();
+  priceRenderers.push(paintTimes);
   timesEl.querySelectorAll(".showtime-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       timesEl.querySelectorAll(".showtime-btn").forEach(b => b.classList.remove("selected"));
@@ -577,7 +678,7 @@ function initMoviePage(){
     const n = chosenSeats.length;
     if (chosenTime && n){
       const full = n === MAX_SEATS ? ` (max ${MAX_SEATS})` : "";
-      summary.textContent = `${movieLabel(movie)} · ${chosenTime} · ${n > 1 ? "Seats" : "Seat"} ${chosenSeats.join(", ")}${full} · ${formatPrice(hall.price * n)}`;
+      summary.textContent = `${movieLabel(movie)} · ${displayTime(chosenTime)} ${tzLabel()} · ${n > 1 ? "Seats" : "Seat"} ${chosenSeats.join(", ")}${full} · ${formatPrice(hall.price * n)}`;
       btn.disabled = false;
     } else {
       summary.textContent = "Pick a showtime and your seats to continue";
@@ -630,7 +731,7 @@ function initPaymentPage(){
   const seatText = `${seats.length > 1 ? "Seats" : "Seat"} ${seats.join(", ")}`;
 
   document.getElementById("paySummaryMovie").textContent = booking.movieCode;
-  document.getElementById("paySummaryDetails").textContent = `${booking.time} · ${seatText} · ${booking.hall}`;
+  document.getElementById("paySummaryDetails").textContent = `${displayTime(booking.time)} ${tzLabel()} · ${seatText} · ${booking.hall}`;
 
   const methodInputs = document.querySelectorAll('input[name="payMethod"]');
   const cardFields = document.getElementById("cardFields");
@@ -829,7 +930,14 @@ function initTicketPage(){
     try{ ticket = JSON.parse(localStorage.getItem("pawnchies_ticket")); }catch(e){ ticket = null; }
   }
   if (!ticket){
-    location.href = "index.html";
+    document.querySelector(".ticket-actions").hidden = true;
+    document.getElementById("ticketList").innerHTML = `
+      <div class="ticket-empty">
+        <img src="assets/okay.gif" alt="">
+        <h2>No ticket yet</h2>
+        <p>Please buy a ticket first so you can see it here.</p>
+        <a class="pick-btn" href="index.html#browse-section">Browse movies</a>
+      </div>`;
     return;
   }
   ticket = upgradeTicket(ticket);
@@ -888,6 +996,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderHero();
   setupHeroCarousel();
   renderShelves();
+  setupHoverTrailers();
   renderTeam();
   renderAbout();
   setupTabToggle();
