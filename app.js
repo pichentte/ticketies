@@ -865,7 +865,7 @@ function initPaymentPage(){
     document.getElementById("cashSub").textContent = formatPrice(0);
     if (method === "cash"){
       cardFields.style.display = "none";
-      payAmount.textContent = `Pay ${formatPrice(0)} (Free)`;
+      payAmount.textContent = `Pay ${formatPrice(0)}`;
     } else {
       cardFields.style.display = "block";
       payAmount.textContent = `Pay ${formatTotal(seatGbp)} with Kawaii Bank`;
@@ -977,7 +977,7 @@ function initPaymentPage(){
       total: formatTotal(free ? [0] : seatGbp),
       tax: taxLines(free ? 0 : seatGbp.reduce((sum, g) => sum + seatAmount(g), 0)),
       name: payName.value.trim(),
-      payMethod: free ? "Cash (Free)" : "Kawaii Bank",
+      payMethod: free ? "Cash" : "Kawaii Bank",
       cardLast4: free ? null : cardNumber.value.replace(/\D/g, "").slice(-4),
       numbers: seats.map(() => nextTicketNumber()),
       codes: types.map(id => ticketType(id).code),
@@ -1066,6 +1066,94 @@ function eticketHtml(t, i){
   </article>`;
 }
 
+/* ---------------- secret anniversary gift ----------------
+   Only shows when the ticket was emailed to one of these addresses.
+   Testing: put your own email here first, then swap in hers. */
+const GIFT_EMAILS = ["your-email@example.com"];
+
+/* the letter inside the paper plane — each string is one paragraph */
+const GIFT_LETTER = {
+  title: "Happy 2 months, Kyshies 💕",
+  body: [
+    "[Placeholder letter] Two months of movie nights across two time zones, and every single one still feels like the first.",
+    "Thank you for staying up late, waking up early, and always saving me the seat next to you.",
+    "Here's to many more tickets together."
+  ],
+  sign: "— Mr. Stinki"
+};
+
+function isGiftTicket(t){
+  return !!(t && t.email && GIFT_EMAILS.some(e => e.trim().toLowerCase() === t.email.trim().toLowerCase()));
+}
+
+function setupGift(ticket){
+  if (!isGiftTicket(ticket)) return;
+  // a little button stays on the page so the gift can be reopened
+  const again = document.createElement("button");
+  again.className = "gift-again";
+  again.type = "button";
+  again.textContent = "🎁 Your gifties";
+  again.addEventListener("click", openGift);
+  document.querySelector(".ticket-actions").prepend(again);
+  // pop up on its own once per ticket
+  const seenKey = "pawnchies_gift_seen_" + (ticket.issuedAt || "");
+  try{ if (localStorage.getItem(seenKey)) return; localStorage.setItem(seenKey, "1"); }catch(e){}
+  setTimeout(openGift, 900);
+}
+
+/* step 1: gift popup -> step 2: paper plane flies in -> step 3: letter opens */
+function openGift(){
+  if (document.querySelector(".gift-layer")) return;
+  const layer = document.createElement("div");
+  layer.className = "gift-layer";
+  layer.innerHTML = `
+    <div class="gift-pop">
+      <img src="assets/gift-qoobee.gif" alt="">
+      <h3>You got a new gifties!</h3>
+      <button class="pick-btn gift-claim" type="button">Claim your gift</button>
+    </div>`;
+  document.body.appendChild(layer);
+  layer.querySelector(".gift-claim").addEventListener("click", () => flyPlane(layer));
+}
+
+function flyPlane(layer){
+  layer.querySelector(".gift-pop").classList.add("leave");
+  const stage = document.createElement("div");
+  stage.className = "plane-stage";
+  // dashed trail drawn along the same curve the plane follows
+  stage.innerHTML = `
+    <svg class="plane-trail" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M-60,520 C200,80 420,620 620,260 S880,120 500,300" />
+    </svg>
+    <div class="plane">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M4 30 L60 6 L40 58 L30 38 Z" fill="#fff"/>
+        <path d="M30 38 L60 6 L22 34 Z" fill="#e7e2d6"/>
+        <path d="M30 38 L34 50 L40 58 Z" fill="#cfc8b8"/>
+      </svg>
+    </div>`;
+  layer.appendChild(stage);
+  // plane lands in the middle, then unfolds into the letter
+  stage.querySelector(".plane").addEventListener("animationend", () => openLetter(layer, stage), { once: true });
+}
+
+function openLetter(layer, stage){
+  stage.classList.add("landed");
+  const letter = document.createElement("div");
+  letter.className = "gift-letter";
+  letter.innerHTML = `
+    <button class="gift-close" type="button" aria-label="Close">✕</button>
+    <h3>${escapeHtml(GIFT_LETTER.title)}</h3>
+    ${GIFT_LETTER.body.map(p => `<p>${escapeHtml(p)}</p>`).join("")}
+    <p class="gift-sign">${escapeHtml(GIFT_LETTER.sign)}</p>`;
+  setTimeout(() => {
+    stage.remove();
+    layer.appendChild(letter);
+  }, 450);
+  const close = () => layer.remove();
+  letter.addEventListener("click", e => { if (e.target.closest(".gift-close")) close(); });
+}
+
 function initTicketPage(){
   const root = document.getElementById("ticketRoot");
   if (!root) return;
@@ -1102,6 +1190,7 @@ function initTicketPage(){
   }
 
   document.getElementById("printTicket").addEventListener("click", () => window.print());
+  setupGift(ticket);
 
   const sendBtn = document.getElementById("sendReceiptBtn");
   const emailInput = document.getElementById("receiptEmail");
@@ -1137,7 +1226,7 @@ function initTicketPage(){
    While testing, each new push to main wipes the saved ticket and restarts the
    000001 numbering. When it's time to "launch movie ticket history", set this
    to true and tickets will be kept across deploys. */
-const KEEP_TICKET_HISTORY = true;
+const KEEP_TICKET_HISTORY = false;
 
 async function resetHistoryOnNewDeploy(){
   if (KEEP_TICKET_HISTORY) return;
