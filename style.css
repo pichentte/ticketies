@@ -468,7 +468,7 @@ footer.site-footer{
   .browse-row{display:grid;grid-template-columns:repeat(5,1fr);gap:28px 20px;overflow:visible;padding:4px 0;}
   .poster-card{width:auto;}
   .poster-card img,.poster-ph{width:100%;height:auto;aspect-ratio:2/3;}
-  .team-grid{grid-template-columns:repeat(3,minmax(0,200px));justify-content:start;}
+  .team-grid{grid-template-columns:repeat(3,minmax(0,200px));justify-content:center;}
   .about-copy{max-width:720px;}
 
   #movieRoot{display:grid;grid-template-columns:300px 1fr;column-gap:56px;align-items:start;}
