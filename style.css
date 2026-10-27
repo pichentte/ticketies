@@ -1043,3 +1043,42 @@ footer.site-footer{
 .plane-trail .trail-reveal{animation:none;}
 .plane-stage.landed .plane{animation:plane-land .45s ease forwards;}
 @keyframes plane-land{to{opacity:0;scale:3 .2;}}
+
+/* ---------------- Netflix-style trailers ---------------- */
+/* hero: buttons in one row */
+.hero-actions{display:flex;align-items:center;justify-content:center;gap:10px;}
+@media (min-width:860px){ .hero-actions{justify-content:flex-start;} }
+
+/* while a trailer plays, the words step back so the video shows through */
+.hero-title,.hero-meta,.hero-desc,.hero-shade{transition:opacity .45s ease;}
+.trailer-playing .hero-title,.trailer-playing .hero-meta,.trailer-playing .hero-desc{opacity:.22;}
+.trailer-playing .hero-shade{opacity:.45;}
+.trailer-playing .hero-info:hover .hero-title,
+.trailer-playing .hero-info:hover .hero-meta,
+.trailer-playing .hero-info:hover .hero-desc{opacity:1;} /* desktop: hover the text to read it */
+.hero-info{z-index:2;}
+.hero-shade{z-index:1;}
+
+/* sound toggle: round speaker, only while a trailer is playing */
+.sound-btn{
+  display:none;align-items:center;justify-content:center;flex-shrink:0;
+  width:40px;height:40px;border-radius:50%;cursor:pointer;
+  border:1.5px solid rgba(255,255,255,.75);background:rgba(11,11,13,.45);color:#fff;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+}
+.sound-btn svg{width:20px;height:20px;}
+.sound-btn .ic-on{display:none;}
+.sound-btn[aria-pressed="true"] .ic-on{display:block;}
+.sound-btn[aria-pressed="true"] .ic-off{display:none;}
+.trailer-playing .sound-btn{display:inline-flex;}
+/* on hover cards it sits in the art's top-right corner */
+.card-sound{position:absolute;top:8px;right:8px;z-index:3;width:32px;height:32px;}
+.card-sound svg{width:16px;height:16px;}
+@media (max-width:859px){ .sound-btn{width:38px;height:38px;} }
+
+/* barcode is a ready-made upright image now: just place it in the strip */
+.et-metal{position:relative;}
+.et-barcode-img{
+  position:absolute;top:9%;bottom:9%;left:0;right:0;margin:0 auto;height:82%;width:auto;max-width:80%;
+  object-fit:contain;image-rendering:crisp-edges;
+}

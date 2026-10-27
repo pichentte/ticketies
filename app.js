@@ -438,7 +438,10 @@ function renderHero(){
         <h2 class="hero-title">${escapeHtml(m.title)}</h2>
         <p class="hero-meta">${ratingBadge(m)} ${escapeHtml(movieMeta(m))}</p>
         <p class="hero-desc">${escapeHtml(m.overview)}</p>
-        <span class="hero-btn">Get tickets · ${formatPrice(hallOf(m).priceGbp)}</span>
+        <div class="hero-actions">
+          <span class="hero-btn">Get tickets · ${formatPrice(hallOf(m).priceGbp)}</span>
+          ${soundButton()}
+        </div>
       </div>
     </a>`).join("");
   track.scrollLeft = keep;
@@ -487,18 +490,82 @@ function canHover(){
 }
 
 function trailerUrl(key, preview){
+  // enablejsapi lets the page hear when the video is really playing and mute/unmute it
+  const origin = location.origin && location.origin !== "null" ? `&origin=${encodeURIComponent(location.origin)}` : "";
   const q = preview
-    ? `autoplay=1&mute=1&controls=0&playsinline=1&loop=1&playlist=${key}&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1`
+    ? `autoplay=1&mute=1&controls=0&playsinline=1&loop=1&playlist=${key}&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0&enablejsapi=1${origin}`
     : "autoplay=1&playsinline=1&rel=0&modestbranding=1";
   return `https://www.youtube-nocookie.com/embed/${key}?${q}`;
 }
 
-/* covers the host like background-size:cover, fades in once loaded */
+/* ---- sound: one shared setting, Netflix style. Trailers always start muted
+   (browsers block autoplay with sound) and unmute once playing if it's on ---- */
+let trailerSound = false;
+
+const SPEAKER_OFF = `<svg class="ic-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+const SPEAKER_ON = `<svg class="ic-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`;
+
+// a span, not a <button>: these sit inside the movie links
+function soundButton(extra){
+  return `<span class="sound-btn ${extra || ""}" role="button" tabindex="0" aria-label="Trailer sound" aria-pressed="${trailerSound}">${SPEAKER_OFF}${SPEAKER_ON}</span>`;
+}
+
+function ytCommand(frame, func, args){
+  if (frame && frame.contentWindow) frame.contentWindow.postMessage(JSON.stringify({ event: "command", func, args: args || [] }), "*");
+}
+
+function applySound(frame){
+  if (trailerSound){ ytCommand(frame, "unMute"); ytCommand(frame, "setVolume", [100]); }
+  else ytCommand(frame, "mute");
+}
+
+function setTrailerSound(on){
+  trailerSound = on;
+  document.querySelectorAll(".trailer-frame.on").forEach(applySound);
+  document.querySelectorAll(".sound-btn").forEach(b => b.setAttribute("aria-pressed", String(on)));
+}
+
+/* a click on the speaker must not follow the movie link it sits in */
+document.addEventListener("click", e => {
+  const b = e.target.closest(".sound-btn");
+  if (!b) return;
+  e.preventDefault();
+  e.stopPropagation();
+  setTrailerSound(!trailerSound);
+}, true);
+document.addEventListener("keydown", e => {
+  const b = e.target.closest && e.target.closest(".sound-btn");
+  if (b && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); setTrailerSound(!trailerSound); }
+});
+
+/* YouTube reports its state by postMessage; show the frame only once it's really playing,
+   so its play button / title bar never show (if autoplay is blocked it just stays hidden) */
+window.addEventListener("message", e => {
+  if (!/youtube(-nocookie)?\.com$/.test(new URL(e.origin || "http://x").hostname)) return;
+  let data;
+  try{ data = typeof e.data === "string" ? JSON.parse(e.data) : e.data; }catch(err){ return; }
+  const frame = [...document.querySelectorAll(".trailer-frame")].find(f => f.contentWindow === e.source);
+  if (!frame || !data) return;
+  frame.dataset.talking = "1";
+  // two message shapes say "playing": infoDelivery {playerState:1} and onStateChange {info:1}
+  const state = data.event === "onStateChange" ? data.info : data.info && data.info.playerState;
+  if (state === 1 && !frame.classList.contains("on")) revealTrailer(frame);
+});
+
+function revealTrailer(frame){
+  frame.classList.add("on");
+  const host = frame.parentElement;
+  if (host) host.classList.add("trailer-playing");
+  if (host && !host.querySelector(".sound-btn")) host.insertAdjacentHTML("beforeend", soundButton("card-sound"));
+  applySound(frame);
+}
+
+/* covers the host like background-size:cover */
 function playTrailer(host, key){
   if (!host || !key) return;
   stopTrailer(host);
   const r = host.getBoundingClientRect();
-  const h = Math.max(r.height, r.width * 9 / 16) * 1.12; // slight zoom crops YouTube's edge chrome
+  const h = Math.max(r.height, r.width * 9 / 16) * 1.35; // zoomed so YouTube's title bar and corners fall outside
   const frame = document.createElement("iframe");
   frame.className = "trailer-frame";
   frame.allow = "autoplay; encrypted-media; picture-in-picture";
@@ -506,13 +573,28 @@ function playTrailer(host, key){
   frame.setAttribute("aria-hidden", "true");
   frame.style.width = (h * 16 / 9) + "px";
   frame.style.height = h + "px";
-  frame.addEventListener("load", () => setTimeout(() => frame.classList.add("on"), 400));
+  frame.addEventListener("load", () => {
+    // ask YouTube to start reporting; repeat until it answers
+    let tries = 0;
+    const hello = () => {
+      if (!frame.isConnected || frame.dataset.talking || tries++ > 20) return;
+      frame.contentWindow.postMessage(JSON.stringify({ event: "listening", id: key, channel: "widget" }), "*");
+      ytCommand(frame, "addEventListener", ["onStateChange"]);
+      setTimeout(hello, 250);
+    };
+    hello();
+    // if YouTube never talks back at all, fall back to just showing it
+    setTimeout(() => { if (frame.isConnected && !frame.dataset.talking) revealTrailer(frame); }, 6000);
+  });
   frame.src = trailerUrl(key, true);
   host.insertBefore(frame, host.firstChild);
 }
 
 function stopTrailer(host){
-  if (host) host.querySelectorAll(".trailer-frame").forEach(f => f.remove());
+  if (!host) return;
+  host.querySelectorAll(".trailer-frame").forEach(f => f.remove());
+  host.querySelectorAll(".card-sound").forEach(b => b.remove());
+  host.classList.remove("trailer-playing");
 }
 
 /* desktop: hover any card with data-trailer for 0.6s to preview it */
@@ -1087,7 +1169,7 @@ function eticketHtml(t, i){
     <div class="eticket-scroll"><div class="eticket back">
       <div class="et-metal ${metal}">
         <!-- just the barcode on the strip (it still encodes the ticket type's name) -->
-        <div class="et-barcode"><svg data-code="${escapeHtml(code)}"></svg></div>
+        <img class="et-barcode-img" data-code="${escapeHtml(code)}" alt="Barcode ${escapeHtml(code)}">
       </div>
       <div class="et-terms">
         <h4>PAWNCHINEMA TERMS AND CONDITIONS</h4>
@@ -1310,18 +1392,20 @@ function initTicketPage(){
     ${ticket.tax ? row("Subtotal", ticket.tax.net, "rc-sub") + row(`${ticket.tax.name} ${ticket.tax.pct}% (incl.)`, ticket.tax.tax) : ""}
     ${row("Total", ticket.total, "rc-total")}`;
 
+  // barcode: drawn on a canvas, turned upright on a second canvas, shown as a plain image.
+  // No SVG sizing or CSS rotation, which iOS Safari kept cutting in half.
   if (window.JsBarcode){
-    document.querySelectorAll(".et-barcode svg").forEach(svg => {
-      JsBarcode(svg, svg.dataset.code, { format: "CODE128", displayValue: false, margin: 0, height: 60, width: 2, background: "transparent", lineColor: "#141008" });
-      // turn it to run down the strip *inside* the SVG (a CSS rotate cut it in half on iOS Safari)
-      const w = parseFloat(svg.getAttribute("width")), h = parseFloat(svg.getAttribute("height"));
-      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      g.setAttribute("transform", `translate(${h} 0) rotate(90)`);
-      while (svg.firstChild) g.appendChild(svg.firstChild);
-      svg.appendChild(g);
-      svg.setAttribute("viewBox", `0 0 ${h} ${w}`);
-      svg.setAttribute("preserveAspectRatio", "none");
-      ["width", "height", "style"].forEach(a => svg.removeAttribute(a));
+    document.querySelectorAll(".et-barcode-img").forEach(img => {
+      const flat = document.createElement("canvas");
+      JsBarcode(flat, img.dataset.code, { format: "CODE128", displayValue: false, margin: 0, height: 420, width: 3, background: "transparent", lineColor: "#141008" });
+      const up = document.createElement("canvas");
+      up.width = flat.height;
+      up.height = flat.width;
+      const ctx = up.getContext("2d");
+      ctx.translate(up.width, 0);
+      ctx.rotate(Math.PI / 2);
+      ctx.drawImage(flat, 0, 0);
+      img.src = up.toDataURL("image/png");
     });
   }
 
