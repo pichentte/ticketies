@@ -23,6 +23,7 @@
   }
   body{background:var(--bg);color:var(--text);}
   .slots-pill{color:var(--gold-deep);}
+  .topbar .brand{color:#fff;} /* readable on the dark top bar */
   .btn-print{background:#2E3A2F;color:#F8F6EE;}
   .btn-home{background:#D9C9B2;color:#2E3A2F;}
   .receipt-email input{border-color:#D9C9B2;background:#fff;}
@@ -44,7 +45,7 @@
 </header>
 
 <main id="ticketRoot">
-  <p class="ticket-summary" id="ticketSummary"></p>
+  <div class="ticket-summary receipt" id="ticketSummary"></div>
   <div id="ticketList"></div>
 
   <div class="ticket-actions">

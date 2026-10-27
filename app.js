@@ -142,7 +142,7 @@ function formatTotal(seatGbps){
 
 /* prices are tax-inclusive: UK, 20% VAT, & Malaysia, 25% */
 function taxInfo(){
-  return getCurrency() === "GBP" ? { name: "VAT", rate: 0.2 } : { name: "Entertainment duty", rate: 0.25 };
+  return getCurrency() === "GBP" ? { name: "Kawaii Tax", rate: 0.2 } : { name: "Kawaii Tax", rate: 0.25 };
 }
 
 function taxLines(totalAmount){
@@ -346,14 +346,18 @@ const TEAM = [
 ];
 
 const ABOUT_COPY = `
+  <div class="about-story">
   <p>Pawnchinema has been rebranded for maximum kawaiiness, and every seat is Kawaii Pass approved by the Plushkins. Only the non-kawaii (AKA the Stinkies) get rocks thrown at them.</p>
   <p>Founded in March 2026 as <b>Baby Oyen Cinema</b>, it was bought by Mr. Stinki for £5.55 Kawaiilion, who took over and rebranded it to what we know today: <b>PWC</b> (Pawchinema), or <b>Pawnchinema</b> as in Paw-Punch-inema muehehehe.</p>
-  <p><b>Locations</b></p>
+  <p>This cinema has security, so beware of Yangzhi…</p>
+  </div>
+  <div class="about-locations">
+  <h3>Locations</h3>
   <ul>
     <li>PWC Stinki Puchong, beside the kek lapis</li>
     <li>PWC Plushkins House, Derby</li>
   </ul>
-  <p>This cinema has security, so beware of Yangzhi…</p>
+  </div>
 `;
 
 function getMovie(id){
@@ -962,6 +966,7 @@ function initPaymentPage(){
     // build the ticket now so the email can send while the animations play
     const ticket = buildTicket(currentMethod());
     const email = payEmail.value.trim();
+    ticket.email = email || null; // before sending: the emailed link must carry it for the gift
     const emailSent = email ? sendTicketEmail(ticket, email) : Promise.resolve(null);
 
     setTimeout(() => {
@@ -1095,7 +1100,7 @@ function eticketHtml(t, i){
 /* ---------------- secret anniversary gift ----------------
    Only shows when the ticket was emailed to one of these addresses.
    Testing: put your own email here first, then swap in hers. */
-const GIFT_EMAILS = ["thejuliette69@gmail.com"];
+const GIFT_EMAILS = ["kya20130@gmail.com"];
 
 /* the letter inside the paper plane — each string is one paragraph */
 const GIFT_LETTER = {
@@ -1166,15 +1171,28 @@ function flyPlane(layer){
       </svg>
     </div>`;
   layer.appendChild(stage);
+  // each frame reads the plane's spot straight off the trail's own path, so the two
+  // can't drift apart in any browser (CSS offset-path lands a bit differently per browser)
   const plane = stage.querySelector(".plane");
-  plane.style.offsetPath = `path("${d}")`;
-  // the mask is one solid stroke that "draws" along the path in step with the plane
   const reveal = stage.querySelector(".trail-reveal");
   const len = reveal.getTotalLength();
   reveal.style.strokeDasharray = `${len} ${len}`;
-  reveal.style.setProperty("--len", len);
-  // plane lands in the middle, then unfolds into the letter
-  stage.querySelector(".plane").addEventListener("animationend", () => openLetter(layer, stage), { once: true });
+  reveal.style.strokeDashoffset = len;
+  const DURATION = 2600;
+  const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const start = performance.now();
+  function frame(now){
+    const t = Math.min(1, (now - start) / DURATION), e = ease(t), at = len * e;
+    const p = reveal.getPointAtLength(at);
+    const ahead = reveal.getPointAtLength(Math.min(len, at + 1)), behind = reveal.getPointAtLength(Math.max(0, at - 1));
+    const angle = Math.atan2(ahead.y - behind.y, ahead.x - behind.x) * 180 / Math.PI + 45; // svg nose points up-right
+    const scale = 0.7 + 0.7 * e;
+    plane.style.transform = `translate(${p.x - 32}px, ${p.y - 32}px) rotate(${angle}deg) scale(${scale})`;
+    reveal.style.strokeDashoffset = len - at; // trail drawn up to the plane
+    if (t < 1) requestAnimationFrame(frame);
+    else openLetter(layer, stage); // plane lands in the middle, then unfolds into the letter
+  }
+  requestAnimationFrame(frame);
 }
 
 /* the letter (title + paragraphs) is capped at 5000 characters so it always fits the layout */
@@ -1277,15 +1295,29 @@ function initTicketPage(){
   ticket = upgradeTicket(ticket);
 
   document.getElementById("ticketList").innerHTML = ticket.seats.map((_, i) => eticketHtml(ticket, i)).join("");
-  document.getElementById("ticketSummary").textContent =
-    `${ticket.name ? "Purchased by " + ticket.name + " · " : ""}${ticket.title} · ${ticket.seats.length > 1 ? "Seats" : "Seat"} ${ticket.seats.join(", ")} · ${typeBreakdown(ticket.types)} · Total ${ticket.total}${ticket.tax ? ` (incl. ${ticket.tax.name} ${ticket.tax.tax})` : ""} · ${ticket.payMethod}${ticket.cardLast4 ? " ····" + ticket.cardLast4 : ""}`;
+  const row = (label, value, cls) => `<div class="rc-row ${cls || ""}"><span>${label}</span><b>${escapeHtml(value)}</b></div>`;
+  document.getElementById("ticketSummary").innerHTML = `
+    <h3>Receipt</h3>
+    ${ticket.name ? row("Purchased by", ticket.name) : ""}
+    ${row("Movie", ticket.title)}
+    ${row(ticket.seats.length > 1 ? "Seats" : "Seat", ticket.seats.join(", "))}
+    ${row("Tickets", typeBreakdown(ticket.types))}
+    ${row("Paid with", ticket.payMethod + (ticket.cardLast4 ? " ····" + ticket.cardLast4 : ""))}
+    ${ticket.tax ? row("Subtotal", ticket.tax.net, "rc-sub") + row(`${ticket.tax.name} ${ticket.tax.pct}% (incl.)`, ticket.tax.tax) : ""}
+    ${row("Total", ticket.total, "rc-total")}`;
 
   if (window.JsBarcode){
     document.querySelectorAll(".et-barcode svg").forEach(svg => {
       JsBarcode(svg, svg.dataset.code, { format: "CODE128", displayValue: false, margin: 0, height: 60, width: 2, background: "transparent", lineColor: "#141008" });
-      // JsBarcode sizes in fixed px; a viewBox lets CSS stretch it to the stub
-      svg.setAttribute("viewBox", `0 0 ${svg.getAttribute("width")} ${svg.getAttribute("height")}`.replace(/px/g, ""));
+      // turn it to run down the strip *inside* the SVG (a CSS rotate cut it in half on iOS Safari)
+      const w = parseFloat(svg.getAttribute("width")), h = parseFloat(svg.getAttribute("height"));
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      g.setAttribute("transform", `translate(${h} 0) rotate(90)`);
+      while (svg.firstChild) g.appendChild(svg.firstChild);
+      svg.appendChild(g);
+      svg.setAttribute("viewBox", `0 0 ${h} ${w}`);
       svg.setAttribute("preserveAspectRatio", "none");
+      ["width", "height", "style"].forEach(a => svg.removeAttribute(a));
     });
   }
 
