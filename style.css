@@ -816,3 +816,17 @@ footer.site-footer{
   font-weight:700;text-transform:none;overflow-wrap:break-word;
 }
 .et-stub em{font-style:normal;font-size:1.3cqw;letter-spacing:.08em;color:#6b6b6b;}
+
+/* ---------------- round 5: e-ticket back strip ----------------
+   fixed columns so nothing collides: [number] [code + barcode on top / info at the bottom]
+   longest code is 29 chars; at 0.9cqw Courier that's ~15.7cqw, the barcode's length */
+.et-metal{display:grid;grid-template-columns:auto auto;justify-content:start;column-gap:2.2cqw;padding:2.4cqw 1.8cqw 2.4cqw 2.6cqw;}
+.et-metal.sage{background:linear-gradient(180deg,#7f9a7a 0%,#cfe0c6 24%,#5d7559 50%,#c3d7b9 74%,#86a07f 100%);}
+.et-metal.bronze{background:linear-gradient(180deg,#a8683f 0%,#e9b48a 24%,#7a4524 50%,#dea67b 74%,#b0744a 100%);}
+.et-num{align-self:center;font-size:5cqw;letter-spacing:.28em;}
+.et-side{display:flex;flex-direction:column;justify-content:space-between;height:100%;min-height:0;}
+.et-bc-row{display:flex;align-items:flex-start;gap:.5cqw;height:15.8cqw;}
+.et-code{font-size:.9cqw;letter-spacing:0;line-height:1;white-space:nowrap;}
+.et-barcode{width:4.6cqw;height:15.8cqw;}
+.et-barcode svg{width:15.8cqw;height:4.6cqw;}
+.et-info{font-size:.95cqw;line-height:1.45;letter-spacing:.02em;white-space:nowrap;max-height:10cqw;}

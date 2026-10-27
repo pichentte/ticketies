@@ -20,9 +20,10 @@ const MAX_SEATS = 8; // most seats one booking can hold
 
 /* ticket types, applied per seat */
 const TICKET_TYPES = [
-  { id: "stinki", name: "Stinki",        note: "Full price",  pay: 1 },
-  { id: "kawaii", name: "Kawaii",        note: "100% off",    pay: 0 },
-  { id: "babies", name: "Kawaii Babies", note: "55% off",     pay: 0.45 }
+  // code = the fixed name printed and encoded on that type's barcode, metal = back strip colour
+  { id: "stinki", name: "Stinki",        note: "Full price",  pay: 1,    code: "PICHIES-sweaties-armpits-0112", metal: "sage" },
+  { id: "kawaii", name: "Kawaii",        note: "100% off",    pay: 0,    code: "KY5HIES-poo-oyen-3012",         metal: "gold" },
+  { id: "babies", name: "Kawaii Babies", note: "55% off",     pay: 0.45, code: "BUNCHIES-see-yuh-1212",         metal: "bronze" }
 ];
 
 function ticketType(id){
@@ -237,7 +238,6 @@ const TNC_RULES = [
   "By buying/using this ticket, you pawmish to follow ALL rules."
 ];
 
-const BARCODE_WORDS = ["KY5HIES-poo-oyen", "PICHIES-smell-g00d", "BUNCHIES-see-yuh", "QOOBEE-walk-lah", "MEOWCHKINS-rock-missile"];
 
 function nextTicketNumber(){
   let n = 0;
@@ -940,7 +940,7 @@ function initPaymentPage(){
       payMethod: free ? "Cash (Free)" : "Kawaii Bank",
       cardLast4: free ? null : cardNumber.value.replace(/\D/g, "").slice(-4),
       numbers: seats.map(() => nextTicketNumber()),
-      codes: seats.map(() => BARCODE_WORDS[Math.floor(Math.random() * BARCODE_WORDS.length)] + "-" + String(Math.floor(1000 + Math.random() * 9000))),
+      codes: types.map(id => ticketType(id).code),
       issuedAt: now.toISOString(),
       issued: now.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" })
     };
@@ -976,7 +976,9 @@ function eticketHtml(t, i){
   const movie = getMovie(t.movieId) || {};
   const win = showWindow(t.time, t.runtime, new Date(t.issuedAt));
   // the stub follows the currency picked on the home page when it was bought
-  const zone = t.currency === "GBP" ? "uk" : t.currency === "MYR" ? "my" : null;
+  // older tickets didn't store the currency: read it off the price so price and time zone agree
+  const currency = t.currency || (/^£/.test(t.seatPrices[i] || t.total) ? "GBP" : /^RM/.test(t.seatPrices[i] || t.total) ? "MYR" : null);
+  const zone = currency === "GBP" ? "uk" : currency === "MYR" ? "my" : null;
   const timeLabel = zone === "uk" ? "TIME (UK)" : zone === "my" ? "TIME (MYT)" : "TIME (UK/MYT)";
   const timeLines = zone === "uk" ? [win.uk] : zone === "my" ? [win.myt] : [win.uk, win.myt];
   const rating = t.rating || (movie.ratings ? ratingOf(movie, t.ratingCountry || (zone === "uk" ? "uk" : "my")) : "U");
@@ -991,7 +993,8 @@ function eticketHtml(t, i){
   const longest = Math.max(...t.title.split(/\s+/).map(w => w.length), 2);
   const titleSize = Math.min(9.5, 34 / (longest * fw)).toFixed(2);
   const art = movie.poster || movie.backdrop || "";
-  const metal = i % 2 ? "copper" : "gold"; // alternate like the two sample tickets
+  const metal = type.metal;
+  const code = type.code; // the barcode name belongs to the ticket type
   return `
   <article class="eticket-pair">
     <p class="eticket-count">Ticket ${i + 1} of ${t.seats.length} · ${type.name}</p>
@@ -1015,10 +1018,10 @@ function eticketHtml(t, i){
         <div class="et-num">${num}</div>
         <div class="et-side">
           <div class="et-bc-row">
-            <div class="et-code">${escapeHtml(t.codes[i])}</div>
-            <div class="et-barcode"><svg data-code="${escapeHtml(t.codes[i])}"></svg></div>
+            <div class="et-code">${escapeHtml(code)}</div>
+            <div class="et-barcode"><svg data-code="${escapeHtml(code)}"></svg></div>
           </div>
-          <div class="et-info">PRICE: ${escapeHtml(price)}<br>TIME: ${escapeHtml(timeLines[0])}<br>${escapeHtml(hallName)}</div>
+          <div class="et-info">PRICE: ${escapeHtml(price)}<br>${escapeHtml(type.name.toUpperCase())}<br>${timeLabel}<br>${escapeHtml(timeLines[0])}<br>${escapeHtml(hallName)}</div>
         </div>
       </div>
       <div class="et-terms">
