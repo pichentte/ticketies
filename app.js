@@ -1202,7 +1202,7 @@ const GIFT_EMAILS = ["kya20130@gmail.com", "thejuliette69@gmail.com"]; // hers +
 
 /* the letter inside the paper plane — each string is one paragraph */
 const GIFT_LETTER = {
-  title: "Happy 2-month anniversary, Kyshies",
+  title: "Happy 2 months kawaiiversary, Kyshies",
   body: [
     "These two months have honestly been some of the best I've had. Even with the distance, you make everything feel closer. Talking to you and our baby plushkins is the part of my day I look forward to most.",
     "i built this for you (only you can access this area btw) because i wanted to give you something that came from me, not just something bought. it's not perfect and not everything works 100% yet, but i'm learning as i go, and i wanted to put it into something for our special day x",
