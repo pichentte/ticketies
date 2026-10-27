@@ -330,7 +330,7 @@ const TEAM = [
 
 const ABOUT_COPY = `
   <p>Pawnchinema has been rebranded for maximum kawaiiness, and every seat is Kawaii Pass approved by the Plushkins. Only the non-kawaii (AKA the Stinkies) get rocks thrown at them.</p>
-  <p>Founded in March 2026 as <b>Baby Oyen Cinema</b>, it was bought by Mr. Stinki for £5.55 Kawaiilion, who took over and rebranded it to what we know today: <b>PWC</b> (Pawnchinema), or Paw-Punch-ink-nema muehehehe.</p>
+  <p>Founded in March 2026 as <b>Baby Oyen Cinema</b>, it was bought by Mr. Stinki for £5.55 Kawaiilion, who took over and rebranded it to what we know today: <b>PWC</b> (Pawchinema), or <b>Pawnchinema</b> as in Paw-Punch-inema muehehehe.</p>
   <p><b>Locations</b></p>
   <ul>
     <li>PWC Stinki Puchong, beside the kek lapis</li>
