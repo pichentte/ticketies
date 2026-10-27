@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Seat Selection</title>
 <link rel="icon" href="assets/polaroid-3.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Grenze+Gotisch:wght@700&family=Space+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,10 +21,12 @@
 
 <main id="movieRoot">
   <section style="margin-top:22px;">
+    <div class="detail-backdrop" id="detailBackdrop"></div>
     <div class="detail-hero">
       <img id="detailPoster" src="" alt="Movie poster">
       <div>
         <h2 id="detailCode"></h2>
+        <p class="detail-meta" id="detailMeta"></p>
         <p class="slots" id="detailSlots"></p>
         <p class="price-tag" id="detailPrice"></p>
         <p class="desc" id="detailDesc"></p>

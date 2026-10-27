@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pawnchinema</title>
 <link rel="icon" href="assets/polaroid-3.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Grenze+Gotisch:wght@700&family=Space+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="style.css">
 <style>
   /* jet black and wine ash, testing */
@@ -21,7 +24,7 @@
 </div>
 
 <header class="topbar">
-  <div class="brand">PAWNCHINEMA<span class="dot">.</span></div>
+  <a class="brand" href="index.html"><img class="brand-logo" src="assets/bunchies-logo.png" alt=""><span class="brand-name">Pawnchinema</span></a>
   <nav class="desktop-nav">
     <a href="#browse-section">Movies</a>
     <a href="#about-section">About us</a>
@@ -36,6 +39,12 @@
     <span class="slots-pill" id="slotsPill">73 slots</span>
   </div>
 </header>
+
+<!-- mobile only: Apple TV style swipeable hero -->
+<section class="hero" aria-label="Featured">
+  <div class="hero-track" id="heroTrack"></div>
+  <div class="hero-dots" id="heroDots"></div>
+</section>
 
 <div class="banner-wrap">
   <div class="spotlight" id="spotlight"></div>
@@ -57,11 +66,14 @@
   </button>
 </div>
 
-<main>
+<main class="home">
   <section id="browse-section">
     <h2>Now browsing</h2>
     <div class="browse-row" id="browseRow"></div>
   </section>
+
+  <!-- mobile only: landscape shelves -->
+  <div id="shelves"></div>
 
   <section id="about-section">
     <div class="tab-toggle">

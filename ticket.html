@@ -5,8 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Your Ticketies</title>
 <link rel="icon" href="assets/polaroid-3.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Grenze+Gotisch:wght@700&family=Space+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="style.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
 <style>
   /* earthy palette */
   :root{
@@ -20,21 +23,17 @@
   }
   body{background:var(--bg);color:var(--text);}
   .slots-pill{color:var(--gold-deep);}
-  .ticket{background:#F8F6EE;color:#2E3A2F;border:1px solid #D9C9B2;}
-  .ticket-top{background:linear-gradient(135deg,#C96F4F,#D9C9B2);}
-  .ticket-top p{color:#2E3A2F;}
-  .ticket-row{border-bottom-color:#D9C9B2;}
-  .ticket-row span:first-child{color:#6B7F5B;}
   .btn-print{background:#2E3A2F;color:#F8F6EE;}
   .btn-home{background:#D9C9B2;color:#2E3A2F;}
-  .receipt-email input{border-color:#D9C9B2;}
+  .receipt-email input{border-color:#D9C9B2;background:#fff;}
   .receipt-email button{background:#C96F4F;color:#F8F6EE;}
 
   @media print{
-    body *{visibility:hidden;}
-    .ticket, .ticket *{visibility:visible;}
-    .ticket{position:fixed;top:40px;left:50%;transform:translateX(-50%);}
-    .ticket-foot, .receipt-email{display:none;}
+    body{background:#fff;padding:0;}
+    .topbar, .ticket-actions, .site-footer, .eticket-count, .ticket-summary{display:none !important;}
+    .eticket-scroll{overflow:visible;}
+    .eticket{min-width:0;width:100%;}
+    .eticket-pair{break-inside:avoid;}
   }
 </style>
 </head>
@@ -46,37 +45,23 @@
 </header>
 
 <main id="ticketRoot">
-  <div class="ticket">
-    <div class="ticket-top">
-      <p id="ticketAdmit">PAWNCHINEMA · ADMIT ONE</p>
-      <h3 id="ticketMovie"></h3>
-    </div>
-    <div class="ticket-body">
-      <div class="ticket-row"><span>Showtime</span><span id="ticketTime"></span></div>
-      <div class="ticket-row"><span id="ticketSeatLabel">Seat</span><span id="ticketSeat"></span></div>
-      <div class="ticket-row"><span>Hall</span><span id="ticketHall"></span></div>
-      <div class="ticket-row"><span>Total</span><span id="ticketTotal"></span></div>
-      <div class="ticket-row"><span>Ticket No.</span><span id="ticketNo"></span></div>
-      <div class="ticket-row"><span>Issued</span><span id="ticketDate"></span></div>
-      <div class="ticket-row"><span>Paid via</span><span id="ticketPayMethod"></span></div>
-    </div>
-    <div class="qr-wrap">
-      <div id="qrCode"></div>
-    </div>
+  <p class="ticket-summary" id="ticketSummary"></p>
+  <div id="ticketList"></div>
+
+  <div class="ticket-actions">
     <div class="ticket-foot">
-      <button class="btn-print" id="printTicket">Print ticket</button>
+      <button class="btn-print" id="printTicket">Print tickets</button>
       <a class="btn-home" href="index.html">Back home</a>
     </div>
     <div class="receipt-email">
-      <input type="email" id="receiptEmail" placeholder="Send receipt to an email">
-      <button id="sendReceiptBtn" type="button">Send receipt</button>
+      <input type="email" id="receiptEmail" placeholder="Send the e-ticket to an email">
+      <button id="sendReceiptBtn" type="button">Send ticket</button>
       <p class="status" id="sendStatus"></p>
     </div>
   </div>
 </main>
 
 <footer class="site-footer">© Rockvengers (30120112). All rights reserved.</footer>
-
 
 <script src="app.js"></script>
 </body>

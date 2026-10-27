@@ -1,3 +1,10 @@
+/* Whole Lotta Red logo font (dafont, personal use only) */
+@font-face{
+  font-family:"Slash Signature";
+  src:url("assets/fonts/Slash Signature Personal Use Only.ttf") format("truetype");
+  font-display:swap;
+}
+
 :root{
   --bg:#0b0b0d;
   --panel:#17161b;
@@ -38,6 +45,14 @@ img{max-width:100%;}
   letter-spacing:0.01em;
 }
 .brand .dot{color:var(--gold);}
+a.brand{text-decoration:none;}
+.brand-logo{height:44px;width:auto;display:block;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));}
+.brand-name{
+  font-family:"Slash Signature","Grenze Gotisch",serif;font-weight:400;
+  font-size:1.9rem;line-height:1;letter-spacing:0.01em;
+  color:var(--text);
+  text-shadow:0 0 14px rgba(255,255,255,.12);
+}
 .desktop-nav{display:none;gap:28px;align-items:center;}
 .desktop-nav a{color:var(--muted);text-decoration:none;font-size:0.9rem;font-weight:600;}
 .desktop-nav a:hover{color:var(--gold);}
@@ -307,8 +322,6 @@ footer.site-footer{
 .card-row input{flex:1;}
 .pay-amount{margin:18px 0 10px;text-align:center;color:var(--muted);font-size:0.86rem;}
 
-.qr-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 0 4px;}
-.qr-wrap p{margin:0;font-size:0.72rem;color:#8b839a;}
 .receipt-email{padding:16px 22px 0;display:flex;flex-direction:column;gap:8px;}
 .receipt-email input{
   padding:11px;border-radius:9px;border:1px solid #e4dfe9;font:inherit;font-size:0.88rem;
@@ -343,8 +356,8 @@ footer.site-footer{
 .modal-backdrop.open{display:flex;}
 .modal-panel{
   background:var(--panel);width:100%;max-width:520px;
-  border-radius:18px 18px 0 0;padding:22px;max-height:85vh;
-  display:flex;flex-direction:column;
+  border-radius:18px 18px 0 0;padding:22px;max-height:85vh;max-height:85dvh;
+  display:flex;flex-direction:column;overflow:hidden;
 }
 @media(min-width:600px){
   .modal-backdrop{align-items:center;}
@@ -354,6 +367,8 @@ footer.site-footer{
 .tnc-scroll{
   overflow-y:auto;border:1px solid var(--panel-2);border-radius:10px;
   padding:14px;font-size:0.85rem;color:var(--muted);margin-bottom:14px;flex:1;
+  min-height:0; /* lets the list shrink and scroll instead of overflowing the panel */
+  overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
 }
 .tnc-scroll li{margin-bottom:10px;}
 .agree-row{
@@ -363,16 +378,6 @@ footer.site-footer{
 .modal-panel .pick-btn{margin-top:0;}
 .scroll-hint{font-size:0.74rem;color:var(--danger);margin:-6px 0 12px;}
 
-.ticket{
-  background:#fff;color:#141008;border-radius:14px;overflow:hidden;max-width:380px;margin:24px auto 0;
-}
-.ticket-top{background:linear-gradient(135deg,var(--gold),#fff3c4);padding:20px 22px;}
-.ticket-top p{margin:0;font-size:0.72rem;letter-spacing:0.08em;color:#4a3c08;opacity:0.85;}
-.ticket-top h3{margin:4px 0 0;font-size:1.3rem;}
-.ticket-body{padding:18px 22px;}
-.ticket-row{display:flex;justify-content:space-between;font-size:0.86rem;padding:8px 0;border-bottom:1px dashed #e4dfe9;}
-.ticket-row:last-child{border-bottom:none;}
-.ticket-row span:first-child{color:#8b839a;}
 .ticket-foot{padding:14px 22px 22px;display:flex;gap:10px;}
 .ticket-foot button{flex:1;padding:11px;border-radius:9px;border:none;font-weight:700;cursor:pointer;font-size:0.88rem;}
 .btn-print{background:#141008;color:#fff;}
@@ -483,4 +488,163 @@ footer.site-footer{
   .cta-bar{bottom:20px;}
 
   #paymentRoot{max-width:520px;}
+}
+
+/* ---------------- payment: email the e-ticket ---------------- */
+.pay-email{
+  width:100%;background:var(--panel);border:1px solid var(--panel-2);border-radius:9px;
+  padding:12px;color:var(--text);font:inherit;font-size:0.9rem;
+}
+.pay-email.bad{border-color:var(--danger);}
+.pay-email-note{font-size:0.76rem;color:var(--muted);margin:8px 0 0;}
+
+/* ---------------- e-ticket (format from e-ticketies.pdf) ----------------
+   sizes are in cqw (% of the ticket's width) so it scales like an image */
+.ticket-summary{color:var(--muted);font-size:0.86rem;margin:22px 0 6px;}
+.eticket-pair{margin-top:18px;}
+.eticket-count{font-size:0.74rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px;}
+.eticket-scroll{container-type:inline-size;margin-bottom:12px;}
+.eticket{
+  display:grid;width:100%;aspect-ratio:1568/507;
+  border-radius:10px;overflow:hidden;
+  box-shadow:0 10px 28px rgba(0,0,0,.18);
+  font-family:"Space Mono",ui-monospace,monospace;
+}
+.eticket.front{grid-template-columns:67.9% 6.2% 1fr;}
+.et-art{position:relative;background:#222 center/cover no-repeat;color:#f4f1ea;}
+.et-art::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(0,0,0,.6),rgba(0,0,0,.25) 35%,rgba(0,0,0,.3));
+}
+.et-premiere{
+  position:absolute;left:2.4cqw;top:16%;z-index:1;
+  writing-mode:vertical-rl;font-size:2.1cqw;letter-spacing:.32em;line-height:1.7;
+}
+.et-hallseat{
+  position:absolute;top:22%;left:6%;right:4%;z-index:1;
+  text-align:center;font-size:1.85cqw;letter-spacing:.1em;
+}
+.et-title{
+  position:absolute;left:6%;right:4%;top:56%;transform:translateY(-50%);z-index:1;
+  margin:0;text-align:center;white-space:nowrap;
+  font-family:"Bebas Neue",Impact,sans-serif;font-weight:400;line-height:.9;letter-spacing:.02em;
+  color:#f4f1ea;text-shadow:0 .3cqw 1.4cqw rgba(0,0,0,.55);
+}
+.et-strip{background:#000;display:flex;align-items:center;justify-content:center;}
+.et-strip span{
+  writing-mode:vertical-rl;transform:rotate(180deg);
+  font-family:"Bebas Neue",Impact,sans-serif;font-size:4.4cqw;letter-spacing:.06em;color:#fff;
+}
+.et-stub{
+  background:#fff;color:#141008;text-align:right;
+  display:flex;flex-direction:column;justify-content:center;gap:3cqw;padding:0 2.2cqw;
+}
+.et-stub div{display:flex;flex-direction:column;gap:.5cqw;}
+.et-stub span{font-size:1.75cqw;letter-spacing:.05em;}
+.et-stub b{font-size:1.75cqw;letter-spacing:.03em;}
+
+.eticket.back{grid-template-columns:22.6% 1fr;}
+.et-metal{display:flex;gap:2.4cqw;padding:2.4cqw 2.2cqw 2.4cqw 3cqw;color:#fff;}
+.et-metal.gold{background:linear-gradient(180deg,#d9a548 0%,#f6d88f 24%,#a8742b 50%,#f1cd7e 74%,#d39c45 100%);}
+.et-metal.copper{background:linear-gradient(180deg,#c9785a 0%,#f4b9a0 24%,#97462f 50%,#eda186 74%,#cf7a5c 100%);}
+.et-num{writing-mode:vertical-rl;align-self:center;font-size:5.4cqw;letter-spacing:.32em;text-shadow:0 .2cqw .6cqw rgba(0,0,0,.25);}
+.et-side{display:flex;flex-direction:column;justify-content:space-between;}
+.et-bc-row{display:flex;gap:.8cqw;}
+.et-code{writing-mode:vertical-rl;font-size:1.3cqw;letter-spacing:.04em;color:#141008;}
+.et-barcode{position:relative;width:5.4cqw;height:16cqw;}
+.et-barcode svg{
+  position:absolute;left:50%;top:50%;width:16cqw;height:5.4cqw;
+  transform:translate(-50%,-50%) rotate(90deg);
+}
+.et-info{writing-mode:vertical-rl;font-size:1.3cqw;line-height:1.55;letter-spacing:.04em;}
+.et-terms{
+  background:#fff;color:#141008;padding:3cqw 5cqw;
+  display:flex;flex-direction:column;justify-content:center;
+}
+.et-terms h4{font-family:"Bebas Neue",Impact,sans-serif;font-weight:400;font-size:4.6cqw;line-height:1;margin:0 0 1.2cqw;}
+.et-terms p{font-size:1.32cqw;letter-spacing:.08em;line-height:1.5;margin:0 0 1.3cqw;}
+.et-terms p:last-child{margin-bottom:0;}
+.ticket-actions{max-width:420px;margin:10px auto 0;}
+
+/* ---------------- mobile: Apple TV style ---------------- */
+.hero,#shelves,.detail-backdrop,.detail-meta{display:none;}
+@media (max-width:859px){
+  /* frosted bars, content scrolls underneath */
+  .topbar{
+    position:sticky;top:0;z-index:40;border-bottom:none;
+    background:rgba(11,11,13,.55);
+    -webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%);
+  }
+  .bottom-tabs{
+    background:rgba(18,18,22,.62);border-top:1px solid rgba(255,255,255,.06);
+    -webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%);
+  }
+  .brand-logo{height:36px;}
+  .brand-name{font-size:1.6rem;}
+  .slots-pill{display:none;}
+  .banner-wrap,.quicklinks{display:none;}
+
+  /* hero: full-bleed swipeable key art */
+  .hero{display:block;position:relative;margin-top:-68px;}
+  .hero-track{
+    display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .hero-track::-webkit-scrollbar{display:none;}
+  .hero-slide{
+    flex:0 0 100%;scroll-snap-align:start;position:relative;
+    height:min(74vh,600px);min-height:420px;
+    background:#111 center/cover no-repeat;color:#fff;text-decoration:none;
+  }
+  .hero-shade{
+    position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(11,11,13,.55) 0%,rgba(11,11,13,0) 26%,rgba(11,11,13,0) 45%,rgba(11,11,13,.85) 82%,#0b0b0d 100%);
+  }
+  .hero-info{position:absolute;left:20px;right:20px;bottom:30px;text-align:center;}
+  .hero-title{
+    margin:0;font-family:"Bebas Neue",Impact,sans-serif;font-weight:400;
+    font-size:3.1rem;line-height:.95;letter-spacing:.02em;text-shadow:0 2px 18px rgba(0,0,0,.5);
+  }
+  .hero-meta{margin:8px 0 16px;font-size:0.8rem;color:rgba(255,255,255,.75);}
+  .hero-btn{
+    display:inline-block;background:#fff;color:#0b0b0d;font-weight:700;font-size:0.92rem;
+    padding:12px 26px;border-radius:999px;
+  }
+  .hero-dots{display:flex;justify-content:center;gap:6px;margin:10px 0 0;}
+  .hero-dots span{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);transition:all .25s;}
+  .hero-dots span.active{background:#fff;width:18px;border-radius:4px;}
+
+  /* shelves: big white headers, cards peek past the edge */
+  main.home{padding-left:0;padding-right:0;}
+  main.home > section,#shelves{padding-left:16px;padding-right:16px;}
+  section > h2,.shelf h2{font-size:1.2rem;color:var(--text);font-weight:800;margin:0 0 12px;}
+  #browse-section{margin-top:22px;}
+  .browse-row,.shelf-row{margin:0 -16px;padding:4px 16px 12px;scroll-padding-left:16px;}
+  .poster-card{width:128px;}
+  .poster-card img,.poster-ph{width:128px;height:190px;border-radius:12px;}
+  #shelves{display:block;}
+  .shelf{margin-top:26px;}
+  .shelf-row{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;}
+  .shelf-row::-webkit-scrollbar{display:none;}
+  .wide-card{flex:0 0 74%;scroll-snap-align:start;color:inherit;text-decoration:none;}
+  .wide-art{aspect-ratio:16/9;border-radius:12px;background:#17161b center/cover no-repeat;}
+  .wide-title{margin-top:8px;font-weight:700;font-size:0.92rem;}
+  .wide-meta{font-size:0.76rem;color:var(--muted);}
+  .wide-meta .price-tag{display:inline;margin:0;font-size:0.76rem;}
+
+  /* movie page: backdrop hero instead of the small poster */
+  #movieRoot > section:first-child{margin-top:0 !important;}
+  .detail-backdrop{
+    display:block;margin:0 -16px;height:62vw;max-height:360px;
+    background:#111 center/cover no-repeat;
+    -webkit-mask-image:linear-gradient(180deg,#000 55%,transparent);mask-image:linear-gradient(180deg,#000 55%,transparent);
+  }
+  .detail-hero{display:block;margin-top:-34px;position:relative;}
+  .detail-hero img{display:none;}
+  .detail-hero h2{font-family:"Bebas Neue",Impact,sans-serif;font-weight:400;font-size:2.4rem;line-height:1;letter-spacing:.02em;}
+  .detail-meta{display:block;margin:2px 0 6px;font-size:0.8rem;color:var(--muted);}
+
+  /* e-ticket: keep it legible, swipe sideways on small screens */
+  .eticket-scroll{overflow-x:auto;margin:0 -16px 12px;padding:0 16px;container-type:normal;}
+  .eticket{min-width:640px;container-type:inline-size;}
 }
