@@ -359,9 +359,13 @@ function seededRandom(seedStr){
 function buildSeatStatus(movieId, hall){
   const rand = seededRandom(movieId);
   const status = {}; // "A1" -> "taken" | "open"
+  // always-free rows: K in standard halls, the two middle rows in IMAX
+  const mid = Math.floor(hall.rows.length / 2);
+  const freeRows = hall.type === "imax" ? hall.rows.slice(mid - 1, mid + 1) : ["K"];
   hall.rows.forEach(row => {
     for (let n = 1; n <= hall.seatsPerRow; n++){
-      status[row + n] = rand() < 0.22 ? "taken" : "open";
+      const taken = rand() < 0.22; // still roll for every seat so the other rows keep their pattern
+      status[row + n] = taken && !freeRows.includes(row) ? "taken" : "open";
     }
   });
   return status;
