@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Seat Selection</title>
+<link rel="icon" href="assets/polaroid-3.ico">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,7 +12,7 @@
 <header class="topbar">
   <a href="index.html" class="brand" style="text-decoration:none;">← Back</a>
   <div class="topbar-right">
-    <span class="slots-pill">pick a seat</span>
+    <span class="slots-pill">pick seats</span>
   </div>
 </header>
 
@@ -22,6 +23,8 @@
       <div>
         <h2 id="detailCode"></h2>
         <p class="slots" id="detailSlots"></p>
+        <p class="price-tag" id="detailPrice"></p>
+        <p class="desc" id="detailDesc"></p>
       </div>
     </div>
   </section>
@@ -32,8 +35,8 @@
   </section>
 
   <section>
-    <h2>Pick a seat</h2>
-    <div class="screen-bar">
+    <h2>Pick your seats</h2>
+    <div class="screen-bar" id="screenBar">
       <div class="curve"></div>
       SCREEN
     </div>
@@ -41,21 +44,18 @@
     <div class="seat-legend">
       <span><span class="swatch" style="background:var(--panel)"></span>Open</span>
       <span><span class="swatch" style="background:var(--panel-2)"></span>Taken</span>
-      <span><span class="swatch" style="background:#3a2f17"></span>Pich's seat</span>
-      <span><span class="swatch" style="background:#2a1820;box-shadow:0 0 0 1px #ff6fae inset"></span>K6/K7</span>
       <span><span class="swatch" style="background:var(--gold)"></span>Your pick</span>
     </div>
   </section>
 
   <div class="cta-bar">
-    <p class="summary" id="ctaSummary">Pick a showtime and a seat to continue</p>
+    <p class="summary" id="ctaSummary">Pick a showtime and your seats to continue</p>
     <button class="pick-btn" id="ctaButton" disabled>Continue to payment</button>
   </div>
 </main>
 
 <footer class="site-footer">© Rockvengers (30120112). All rights reserved.</footer>
 
-<div class="mascot" aria-hidden="true"></div>
 
 <!-- T&C modal -->
 <div class="modal-backdrop" id="tncModal">

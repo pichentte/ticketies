@@ -268,8 +268,10 @@ footer.site-footer{
   border-radius:50%/100% 100% 0 0;
   margin-bottom:8px;
 }
-.seat-map{display:flex;flex-direction:column;gap:6px;align-items:center;overflow-x:auto;max-width:100%;padding-bottom:4px;}
-.seat-row{display:flex;gap:4px;align-items:center;}
+.seat-map{display:flex;flex-direction:column;gap:6px;align-items:flex-start;overflow-x:auto;max-width:100%;padding-bottom:4px;}
+/* auto margins centre narrow rows but fall back to the left edge when a row is
+   wider than the screen, so the left seats stay reachable by scrolling */
+.seat-row{display:flex;gap:4px;align-items:center;margin-inline:auto;}
 .row-label{width:14px;flex-shrink:0;color:var(--muted);font-size:0.66rem;text-align:center;}
 .seat{
   width:22px;height:21px;flex-shrink:0;border-radius:5px 5px 2px 2px;
@@ -278,10 +280,7 @@ footer.site-footer{
   display:flex;align-items:center;justify-content:center;
 }
 .seat.taken{background:var(--panel-2);color:#59525f;cursor:not-allowed;}
-.seat.reserved{background:#3a2f17;border-color:var(--gold-deep);color:var(--gold);cursor:not-allowed;}
 .seat.selected{background:var(--gold);border-color:var(--gold);color:#141008;font-weight:700;}
-.seat.sweetheart{border-color:#ff6fae;box-shadow:0 0 0 1px #ff6fae inset;}
-.seat.sweetheart.open{background:#2a1820;}
 .seat-legend{display:flex;gap:14px;justify-content:center;margin-top:16px;flex-wrap:wrap;font-size:0.74rem;color:var(--muted);}
 .seat-legend .swatch{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
 
@@ -379,26 +378,31 @@ footer.site-footer{
 .btn-print{background:#141008;color:#fff;}
 .btn-home{background:#efe9f3;color:#141008;text-decoration:none;display:flex;align-items:center;justify-content:center;}
 
-.mascot{
-  position:fixed;
-  right:10px;
-  bottom:74px;
-  width:98px;
-  height:55px;
+/* qoobee-sprite.png is 3910x220 but its 6 full frames are NOT on an even grid
+   (the 10-cell slicing cut figures in half). Each keyframe below is the left
+   edge of a 300px window centred on one figure, in sheet pixels, scaled by
+   --h/220 so any element height works. */
+.splash-sprite{
+  height:var(--h);
+  width:calc(var(--h) * 300 / 220);
   background-image:url('assets/qoobee-sprite.png');
   background-repeat:no-repeat;
-  background-size:1000% 100%;
-  image-rendering:auto;
-  pointer-events:none;
-  z-index:20;
-  animation:qoobee-walk 0.9s steps(10) infinite;
+  background-size:auto 100%;
+  background-position-x:calc(var(--h) * -696.5 / 220);
+  animation:qoobee-walk 0.6s infinite;
+  animation-timing-function:steps(1, end);
 }
 @keyframes qoobee-walk{
-  from{background-position-x:0%;}
-  to{background-position-x:100%;}
+  0%      {background-position-x:calc(var(--h) * -696.5 / 220);}
+  16.667% {background-position-x:calc(var(--h) * -1141.5 / 220);}
+  33.333% {background-position-x:calc(var(--h) * -1590 / 220);}
+  50%     {background-position-x:calc(var(--h) * -2031.5 / 220);}
+  66.667% {background-position-x:calc(var(--h) * -2473 / 220);}
+  83.333% {background-position-x:calc(var(--h) * -2919.5 / 220);}
+  100%    {background-position-x:calc(var(--h) * -2919.5 / 220);}
 }
 @media (prefers-reduced-motion:reduce){
-  .mascot{animation:none;}
+  .splash-sprite{animation:none;}
 }
 
 .splash{
@@ -408,14 +412,7 @@ footer.site-footer{
   z-index:100;gap:18px;
   transition:opacity .5s ease;
 }
-.splash-sprite{
-  width:280px;
-  height:157px;
-  background-image:url('assets/qoobee-sprite.png');
-  background-repeat:no-repeat;
-  background-size:1000% 100%;
-  animation:qoobee-walk 0.9s steps(10) infinite;
-}
+.splash-sprite{--h:157px;}
 .splash p{color:var(--muted);font-size:0.85rem;letter-spacing:0.04em;margin:0;}
 .splash .bar{
   width:min(60vw,200px);height:3px;background:var(--panel-2);border-radius:3px;overflow:hidden;
@@ -426,3 +423,64 @@ footer.site-footer{
 }
 @keyframes loadbar{from{width:0%;}to{width:100%;}}
 .splash.hide{opacity:0;pointer-events:none;}
+/* ---------------- halls: flat standard vs curved IMAX ---------------- */
+.screen-bar.standard .curve{height:5px;border-radius:2px;}
+.screen-bar.imax{width:100%;color:var(--gold);}
+.screen-bar.imax .curve{
+  height:22px;background:none;
+  border-top:4px solid var(--gold);
+  border-radius:50%/100% 100% 0 0;
+  box-shadow:0 -6px 18px -6px rgba(255,213,61,.45);
+}
+/* edge seats lift toward the screen and turn to face the middle */
+.seat-map.imax{padding-top:18px;}
+.seat-map.imax .seat{
+  transform:translateY(calc(var(--x) * var(--x) * -16px)) rotate(calc(var(--x) * -12deg));
+}
+
+.price-tag{color:var(--gold);font-size:0.8rem;font-weight:700;margin:4px 0 0;}
+.spotlight .price-tag{color:var(--gold);margin-top:4px;}
+.poster-ph{width:148px;height:216px;border-radius:10px;background:var(--panel);}
+.desc{color:var(--muted);font-size:0.9rem;margin:14px 0 0;}
+
+.currency-select{
+  background:var(--panel);color:var(--text);
+  border:1px solid var(--panel-2);border-radius:999px;
+  padding:5px 10px;font:inherit;font-size:0.8rem;font-weight:700;cursor:pointer;
+}
+
+/* payment done: twinkle OK gif replaces the walking sprite */
+.splash-okay{width:180px;height:180px;object-fit:contain;}
+
+/* ---------------- desktop ---------------- */
+@media (min-width:860px){
+  .topbar{padding:18px 48px;}
+  .banner-wrap{max-width:1100px;margin:0 auto;padding:28px 16px 4px;}
+  .spotlight{padding:28px;gap:28px;}
+  .spotlight img{width:120px;height:176px;}
+  .spotlight h3{font-size:1.4rem;}
+  main{max-width:1100px;}
+  .browse-row{display:grid;grid-template-columns:repeat(5,1fr);gap:28px 20px;overflow:visible;padding:4px 0;}
+  .poster-card{width:auto;}
+  .poster-card img,.poster-ph{width:100%;height:auto;aspect-ratio:2/3;}
+  .team-grid{grid-template-columns:repeat(3,minmax(0,200px));justify-content:start;}
+  .about-copy{max-width:720px;}
+
+  #movieRoot{display:grid;grid-template-columns:300px 1fr;column-gap:56px;align-items:start;}
+  #movieRoot > section:nth-of-type(1){grid-column:1;grid-row:1 / span 3;position:sticky;top:24px;}
+  #movieRoot > section:nth-of-type(2),
+  #movieRoot > section:nth-of-type(3),
+  #movieRoot > .cta-bar{grid-column:2;}
+  .detail-hero{flex-direction:column;}
+  .detail-hero img{width:100%;height:auto;aspect-ratio:2/3;}
+  .detail-hero div{width:100%;}
+  .seat{width:34px;height:32px;font-size:0.72rem;}
+  .seat-row{gap:7px;}
+  .row-label{width:18px;font-size:0.8rem;}
+  /* 18-seat imax rows need smaller seats to fit the right column */
+  .seat-map.imax .seat{width:28px;height:27px;font-size:0.66rem;}
+  .seat-map.imax .seat-row{gap:5px;}
+  .cta-bar{bottom:20px;}
+
+  #paymentRoot{max-width:520px;}
+}

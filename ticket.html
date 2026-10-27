@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Your Ticketies</title>
+<link rel="icon" href="assets/polaroid-3.ico">
 <link rel="stylesheet" href="style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
@@ -47,13 +48,14 @@
 <main id="ticketRoot">
   <div class="ticket">
     <div class="ticket-top">
-      <p>PAWNCHINEMA · ADMIT ONE</p>
+      <p id="ticketAdmit">PAWNCHINEMA · ADMIT ONE</p>
       <h3 id="ticketMovie"></h3>
     </div>
     <div class="ticket-body">
       <div class="ticket-row"><span>Showtime</span><span id="ticketTime"></span></div>
-      <div class="ticket-row"><span>Seat</span><span id="ticketSeat"></span></div>
+      <div class="ticket-row"><span id="ticketSeatLabel">Seat</span><span id="ticketSeat"></span></div>
       <div class="ticket-row"><span>Hall</span><span id="ticketHall"></span></div>
+      <div class="ticket-row"><span>Total</span><span id="ticketTotal"></span></div>
       <div class="ticket-row"><span>Ticket No.</span><span id="ticketNo"></span></div>
       <div class="ticket-row"><span>Issued</span><span id="ticketDate"></span></div>
       <div class="ticket-row"><span>Paid via</span><span id="ticketPayMethod"></span></div>
@@ -75,7 +77,6 @@
 
 <footer class="site-footer">© Rockvengers (30120112). All rights reserved.</footer>
 
-<div class="mascot" aria-hidden="true"></div>
 
 <script src="app.js"></script>
 </body>

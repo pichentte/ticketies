@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pawnchinema</title>
+<link rel="icon" href="assets/polaroid-3.ico">
 <link rel="stylesheet" href="style.css">
 <style>
   /* jet black and wine ash, testing */
@@ -28,6 +29,10 @@
     <a href="ticket.html">My ticket</a>
   </nav>
   <div class="topbar-right">
+    <select class="currency-select" id="currencySelect" aria-label="Currency">
+      <option value="MYR">MYR · RM</option>
+      <option value="GBP">GBP · £</option>
+    </select>
     <span class="slots-pill" id="slotsPill">73 slots</span>
   </div>
 </header>
@@ -104,7 +109,6 @@
   <a href="#browse-section">Movies</a>
 </nav>
 
-<div class="mascot" aria-hidden="true"></div>
 
 <script src="app.js"></script>
 <script>
