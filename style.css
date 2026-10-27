@@ -1218,3 +1218,6 @@ footer.site-footer{
 .kiosk-card + .kiosk-card{margin-top:12px;}
 .kiosk-card{animation-fill-mode:both;}
 .kiosk-download{margin-top:16px;}
+
+/* letter sign-off can span lines (e.g. "Yours Kawaiily,\nIrfan") */
+.gift-sign{white-space:pre-line;}

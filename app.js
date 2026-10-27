@@ -1202,13 +1202,14 @@ const GIFT_EMAILS = ["kya20130@gmail.com", "thejuliette69@gmail.com"]; // hers +
 
 /* the letter inside the paper plane — each string is one paragraph */
 const GIFT_LETTER = {
-  title: "Happy 2 months, Kyshies 💕",
+  title: "Happy 2-month anniversary, Kyshies",
   body: [
-    "[Placeholder letter] Two months of movie nights across two time zones, and every single one still feels like the first.",
-    "Thank you for staying up late, waking up early, and always saving me the seat next to you.",
-    "Here's to many more tickets together."
+    "These two months have honestly been some of the best I've had. Even with the distance, you make everything feel closer. Talking to you and our baby plushkins is the part of my day I look forward to most.",
+    "i built this for you (only you can access this area btw) because i wanted to give you something that came from me, not just something bought. it's not perfect and not everything works 100% yet, but i'm learning as i go, and i wanted to put it into something for our special day x",
+    "I can't wait to finally meet you next year. I'm already planning to take a photo of us together with our baby plushkins, like a proper family photo. MUEHEHEHEHE. I'm going to hold on to that day until it happens.",
+    "I'm really grateful for you, and I can't wait for more days, more weeks, more months, more years, more decades, more calls, and the day we don't have to be long distance anymore xxx"
   ],
-  sign: "— Mr. Stinki"
+  sign: "Yours Kawaiily,\nIrfan" // \n = new line
 };
 
 function isGiftTicket(t){
