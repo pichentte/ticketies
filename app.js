@@ -224,7 +224,7 @@ function displayTime(mytStr){
 /* ---------------- e-ticket bits ---------------- */
 /* EmailJS (emailjs.com) — fill these three in to make "send ticket" really email.
    Leave them empty and the site says email isn't set up instead of pretending. */
-const EMAILJS = { serviceId: "", templateId: "", publicKey: "" };
+const EMAILJS = { serviceId: "service_4stffcj", templateId: "template_7cs5908", publicKey: "JbgmG2uoYE-RjqwAs" };
 
 function emailConfigured(){
   return !!(EMAILJS.serviceId && EMAILJS.templateId && EMAILJS.publicKey);
