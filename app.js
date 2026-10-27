@@ -771,6 +771,12 @@ function initMoviePage(){
     const summary = document.getElementById("ctaSummary");
     const btn = document.getElementById("ctaButton");
     const n = chosenSeats.length;
+    // babies can't watch alone: at least one Stinki or Kawaii has to come with them
+    if (typeCount.babies && stinkiCount() + typeCount.kawaii === 0){
+      summary.textContent = "Kawaii Babies need a grown-up! Add a Stinki or Kawaii ticket to come with them.";
+      btn.disabled = true;
+      return;
+    }
     if (chosenTime && n){
       const full = n === MAX_SEATS ? ` (max ${MAX_SEATS})` : "";
       summary.textContent = `${movieLabel(movie)} · ${displayTime(chosenTime)} ${tzLabel()} · ${n > 1 ? "Seats" : "Seat"} ${chosenSeats.join(", ")}${full} · ${formatTotal(seatGbps())}`;
