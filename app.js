@@ -9,7 +9,7 @@ const SHOW_TITLES = true;
 const HALLS = {
   h1:   { name: "Meowchkins Hall",    type: "standard", rows: ["G","H","I","J","K","L","M","N","O"], seatsPerRow: 12, priceGbp: 5.99 },
   h2:   { name: "Swiss Roll Cake Hall",    type: "standard", rows: ["G","H","I","J","K","L","M","N","O"], seatsPerRow: 12, priceGbp: 5.99 },
-  imax: { name: "OPIUM ", type: "imax",     rows: ["A","B","C","D","E","F","G","H","I","J","K","L"], seatsPerRow: 18, priceGbp: 10.99 }
+  imax: { name: "OPIUM", type: "imax",     rows: ["A","B","C","D","E","F","G","H","I","J","K","L"], seatsPerRow: 18, priceGbp: 10.99 }
 };
 
 const MAX_SEATS = 8;
