@@ -1198,7 +1198,7 @@ function eticketHtml(t, i){
 /* ---------------- secret anniversary gift ----------------
    Only shows when the ticket was emailed to one of these addresses.
    Testing: put your own email here first, then swap in hers. */
-const GIFT_EMAILS = ["kya20130@gmail.com", "thejuliette69@gmail.com"]; // hers + your test email
+const GIFT_EMAILS = ["kya20130@gmail.com"];
 
 /* the letter inside the paper plane — each string is one paragraph */
 const GIFT_LETTER = {
