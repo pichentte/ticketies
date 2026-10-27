@@ -1069,7 +1069,7 @@ function eticketHtml(t, i){
 /* ---------------- secret anniversary gift ----------------
    Only shows when the ticket was emailed to one of these addresses.
    Testing: put your own email here first, then swap in hers. */
-const GIFT_EMAILS = ["your-email@example.com"];
+const GIFT_EMAILS = ["thejuliette69@gmail.com"];
 
 /* the letter inside the paper plane — each string is one paragraph */
 const GIFT_LETTER = {
@@ -1092,7 +1092,7 @@ function setupGift(ticket){
   const again = document.createElement("button");
   again.className = "gift-again";
   again.type = "button";
-  again.textContent = "🎁 Your gifties";
+  again.textContent = "Your gifties";
   again.addEventListener("click", openGift);
   document.querySelector(".ticket-actions").prepend(again);
   // pop up on its own once per ticket
@@ -1146,12 +1146,55 @@ function openLetter(layer, stage){
     <h3>${escapeHtml(GIFT_LETTER.title)}</h3>
     ${GIFT_LETTER.body.map(p => `<p>${escapeHtml(p)}</p>`).join("")}
     <p class="gift-sign">${escapeHtml(GIFT_LETTER.sign)}</p>`;
+  letter.insertAdjacentHTML("beforeend", `<img class="gift-rose-qoobee" src="assets/qoobee-rose.gif" alt="">`);
   setTimeout(() => {
     stage.remove();
     layer.appendChild(letter);
+    rosesBloom(letter);
+    petalShower(layer);
   }, 450);
-  const close = () => layer.remove();
+  const close = () => layer.remove(); // petals live inside the layer, so they go too
   letter.addEventListener("click", e => { if (e.target.closest(".gift-close")) close(); });
+}
+
+/* flowers since there were no real ones today: petals fall the whole time the letter is open */
+const PETAL_COLOURS = ["#e8456b", "#ff7a9a", "#c9184a", "#ffb3c6", "#d6336c"];
+
+function petalSvg(colour){
+  return `<svg viewBox="0 0 20 24" aria-hidden="true"><path d="M10 1 C17 6 19 14 10 23 C1 14 3 6 10 1 Z" fill="${colour}"/><path d="M10 4 C12 10 12 16 10 21" stroke="rgba(255,255,255,.35)" stroke-width="1" fill="none"/></svg>`;
+}
+
+function roseSvg(colour){
+  return `<svg viewBox="0 0 40 40" aria-hidden="true">
+    <circle cx="20" cy="20" r="17" fill="${colour}"/>
+    <path d="M20 6 C29 9 31 20 22 25 C14 29 9 20 15 15 C19 12 25 15 23 20" stroke="rgba(0,0,0,.22)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M9 30 C3 34 2 38 6 39 C11 38 13 34 12 30 Z" fill="#3f7d4e"/>
+    <path d="M31 30 C37 34 38 38 34 39 C29 38 27 34 28 30 Z" fill="#3f7d4e"/>
+  </svg>`;
+}
+
+function petalShower(layer){
+  const box = document.createElement("div");
+  box.className = "petal-shower";
+  for (let i = 0; i < 26; i++){
+    const el = document.createElement("span");
+    el.className = "petal" + (i % 6 === 0 ? " rose" : "");
+    const colour = PETAL_COLOURS[i % PETAL_COLOURS.length];
+    el.innerHTML = i % 6 === 0 ? roseSvg(colour) : petalSvg(colour);
+    const size = i % 6 === 0 ? 26 + Math.random() * 14 : 12 + Math.random() * 12;
+    el.style.cssText = `left:${Math.random() * 100}vw;width:${size}px;height:${size * 1.2}px;` +
+      `--sway:${(Math.random() * 2 - 1) * 90}px;--spin:${360 + Math.random() * 540}deg;` +
+      `animation-duration:${6 + Math.random() * 6}s;animation-delay:${-Math.random() * 8}s;`;
+    box.appendChild(el);
+  }
+  layer.insertBefore(box, layer.firstChild); // behind the letter
+}
+
+function rosesBloom(letter){
+  const row = document.createElement("div");
+  row.className = "rose-row";
+  row.innerHTML = [0, 1, 2, 3, 4].map(i => `<span style="animation-delay:${0.2 + i * 0.12}s">${roseSvg(PETAL_COLOURS[i])}</span>`).join("");
+  letter.prepend(row);
 }
 
 function initTicketPage(){
