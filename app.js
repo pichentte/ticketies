@@ -1505,6 +1505,16 @@ async function scanBarcode(img){
   return null;
 }
 
+/* Real barcode reading didn't hold up on phone screenshots, so it's switched off: the kiosk
+   plays the full scan for show, then stamps the ticket saved on this device.
+   Set to true to try the barcode scanner again. */
+const KIOSK_SCAN = false;
+let kioskSeat = 0; // each insert stamps the next seat's ticket
+
+function savedTicket(){
+  try{ const t = JSON.parse(localStorage.getItem("pawnchies_ticket")); return t ? upgradeTicket(t) : null; }catch(e){ return null; }
+}
+
 function initStampPage(){
   const root = document.getElementById("stampRoot");
   if (!root) return;
@@ -1530,11 +1540,23 @@ function initStampPage(){
     sub.textContent = "Please wait while Qoobee checks it.";
     await nextPaint(); // show the slide-in and "Reading…" before any heavy work
     const started = Date.now();
-    let code = null;
-    try{ code = await scanBarcode(await loadImage(url)); }catch(e){ code = null; } // any failure = spit it out
-    const left = 1500 - (Date.now() - started);
-    if (left > 0) await new Promise(r => setTimeout(r, left)); // let the slide-in finish
-    const type = TICKET_TYPES.find(t => t.scan === code || t.code === code);
+    let type = null, seatLabel = "";
+    if (KIOSK_SCAN){
+      let code = null;
+      try{ code = await scanBarcode(await loadImage(url)); }catch(e){ code = null; } // any failure = spit it out
+      type = TICKET_TYPES.find(t => t.scan === code || t.code === code) || null;
+    } else {
+      // pretend scan: use the ticket bought on this device
+      const t = savedTicket();
+      if (t && t.seats && t.seats.length){
+        const i = kioskSeat % t.seats.length;
+        kioskSeat++;
+        type = ticketType(t.types[i]);
+        seatLabel = `${t.title} · Seat ${t.seats[i]}`;
+      }
+    }
+    const left = 2200 - (Date.now() - started);
+    if (left > 0) await new Promise(r => setTimeout(r, left)); // the "scan" always takes a moment
     if (type){
       setState("approved");
       msg.textContent = "Ticket accepted";
@@ -1546,6 +1568,7 @@ function initStampPage(){
           <div class="kc-body">
             <span class="kc-label">TICKET TYPE</span>
             <b class="kc-type">${escapeHtml(type.name.toUpperCase())}</b>
+            ${seatLabel ? `<span class="kc-label">TICKET</span><b>${escapeHtml(seatLabel)}</b>` : ""}
             <span class="kc-label">CODE</span>
             <b class="kc-code">${escapeHtml(type.code)}</b>
             <span class="kc-label">CHECKED IN</span>
@@ -1565,8 +1588,8 @@ function initStampPage(){
         </div>`;
     } else {
       setState("rejected"); // slot spits it back out
-      msg.textContent = "This isn't a Pawnchinema ticket";
-      sub.textContent = "Try a clear screenshot of the barcode side of your e-ticket.";
+      msg.textContent = KIOSK_SCAN ? "This isn't a Pawnchinema ticket" : "No ticket found";
+      sub.textContent = KIOSK_SCAN ? "Try a clear screenshot of the barcode side of your e-ticket." : "Buy a ticket on this device first, then insert it here.";
     }
     insertText.textContent = "Insert another ticket";
   });
