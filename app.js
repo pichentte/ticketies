@@ -683,7 +683,8 @@ function initMoviePage(){
   const scrollHint = document.getElementById("scrollHint");
   const tncConfirm = document.getElementById("tncConfirm");
 
-// TnC tick to allow continue payment
+  // TnC tick to allow continue payment
+  function unlockTnc(){
     agreeCheck.disabled = false;
     scrollHint.style.display = "none";
   }
