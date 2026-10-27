@@ -15,9 +15,10 @@ const HALLS = {
 const MAX_SEATS = 8;
 const TICKET_TYPES = [
   // code = the fixed name printed and encoded on that type's barcode, metal = back strip colour
-  { id: "stinki", name: "Stinki",        note: "Full price",  pay: 1,    code: "PICHIES-sweaties-armpits-0112", metal: "sage" },
-  { id: "kawaii", name: "Kawaii",        note: "100% off",    pay: 0,    code: "KY5HIES-poo-oyen-3012",         metal: "gold" },
-  { id: "babies", name: "Kawaii Babies", note: "55% off",     pay: 0.45, code: "BUNCHIES-see-yuh-5555",         metal: "bronze" }
+  // scan = the short code actually inside the barcode (long names are too dense to scan from a photo)
+  { id: "stinki", name: "Stinki",        note: "Full price",  pay: 1,    code: "PICHIES-sweaties-armpits-0112", scan: "PWC-0112", metal: "sage" },
+  { id: "kawaii", name: "Kawaii",        note: "100% off",    pay: 0,    code: "KY5HIES-poo-oyen-3012",         scan: "PWC-3012", metal: "gold" },
+  { id: "babies", name: "Kawaii Babies", note: "55% off",     pay: 0.45, code: "BUNCHIES-see-yuh-5555",         scan: "PWC-5555", metal: "bronze" }
 ];
 
 function ticketType(id){
@@ -704,8 +705,15 @@ function setupSplash(){
     return;
   }
   sessionStorage.setItem("pawnchies_splash_seen", "1");
-  const dismiss = () => splash.classList.add("hide");
-  setTimeout(dismiss, 2800);
+  // 5.1s total: "Put on deodorant…", then "Qoobee is walking lah…" once the bar is ~80% full
+  const SPLASH_MS = 5100, SWAP_MS = 4100;
+  const text = document.getElementById("splashText");
+  const swap = setTimeout(() => {
+    text.classList.add("swap");
+    setTimeout(() => { text.textContent = "Qoobee is walking lah…"; text.classList.remove("swap"); }, 180);
+  }, SWAP_MS);
+  const dismiss = () => { clearTimeout(swap); splash.classList.add("hide"); };
+  setTimeout(dismiss, SPLASH_MS);
   splash.addEventListener("click", dismiss);
 }
 
@@ -1140,11 +1148,17 @@ function eticketHtml(t, i){
   const hallName = ((HALLS[t.hallId] && HALLS[t.hallId].name) || t.hall).replace(/\s*\(placeholder\)/i, "").toUpperCase();
   const type = ticketType(t.types[i]);
   const price = t.seatPrices[i];
-  // title sits in the ~36cqw left of the poster, wrapping onto up to three lines
+  // the title gets the column left of the poster, under the hall line: about 38cqw wide and
+  // 21cqw tall. Size it so it fits BOTH ways — either on one line, or one word per line.
   const font = movie.titleFont || "Bebas Neue";
   const fw = TITLE_FONT_WIDTH[font] || 0.6;
-  const longest = Math.max(...t.title.split(/\s+/).map(w => w.length), 2);
-  const titleSize = Math.min(9.5, 34 / (longest * fw)).toFixed(2);
+  const TW = 38, TH = 21, LH = 0.95;
+  const words = t.title.split(/\s+/).filter(Boolean);
+  const longest = Math.max(...words.map(w => w.length), 2);
+  const oneLine = Math.min(9.5, TW / (Math.max(t.title.length, 2) * fw), TH / LH);
+  const perWord = Math.min(9.5, TW / (longest * fw), TH / (words.length * LH));
+  const titleSize = Math.max(oneLine, perWord).toFixed(2);
+  const titleWrap = oneLine >= perWord ? "nowrap" : "normal";
   const art = movie.poster || movie.backdrop || "";
   const metal = type.metal;
   const code = type.code; // the barcode name belongs to the ticket type
@@ -1155,8 +1169,10 @@ function eticketHtml(t, i){
       <div class="et-art">
         <div class="et-art-fill" style="background-image:url('${art}')"></div>
         <img class="et-poster" src="${art}" alt="">
-        <div class="et-hallseat">${escapeHtml(hallName)} • SEAT #${escapeHtml(t.seats[i])}</div>
-        <h3 class="et-title" style="font-family:'${font}',serif;font-weight:${["Anton", "Bebas Neue", "Archivo Black"].includes(font) ? 400 : 700};font-size:${titleSize}cqw">${escapeHtml(t.title)}</h3>
+        <div class="et-textcol">
+          <div class="et-hallseat">${escapeHtml(hallName)} • SEAT #${escapeHtml(t.seats[i])}</div>
+          <h3 class="et-title" style="font-family:'${font}',serif;font-weight:${["Anton", "Bebas Neue", "Archivo Black"].includes(font) ? 400 : 700};font-size:${titleSize}cqw;white-space:${titleWrap}">${escapeHtml(t.title)}</h3>
+        </div>
       </div>
       <div class="et-strip"><span>RATING: ${escapeHtml(rating)}</span></div>
       <div class="et-stub">
@@ -1169,7 +1185,7 @@ function eticketHtml(t, i){
     <div class="eticket-scroll"><div class="eticket back">
       <div class="et-metal ${metal}">
         <!-- just the barcode on the strip (it still encodes the ticket type's name) -->
-        <img class="et-barcode-img" data-code="${escapeHtml(code)}" alt="Barcode ${escapeHtml(code)}">
+        <div class="et-bc-label"><img class="et-barcode-img" data-code="${escapeHtml(type.scan)}" alt="Barcode ${escapeHtml(code)}"></div>
       </div>
       <div class="et-terms">
         <h4>PAWNCHINEMA TERMS AND CONDITIONS</h4>
@@ -1397,7 +1413,8 @@ function initTicketPage(){
   if (window.JsBarcode){
     document.querySelectorAll(".et-barcode-img").forEach(img => {
       const flat = document.createElement("canvas");
-      JsBarcode(flat, img.dataset.code, { format: "CODE128", displayValue: false, margin: 0, height: 420, width: 3, background: "transparent", lineColor: "#141008" });
+      // 1px per bar; CSS scales it up with pixelated rendering so the bars stay crisp
+      JsBarcode(flat, img.dataset.code, { format: "CODE128", displayValue: false, margin: 0, height: 40, width: 1, background: "#ffffff", lineColor: "#000000" });
       const up = document.createElement("canvas");
       up.width = flat.height;
       up.height = flat.width;
@@ -1450,10 +1467,12 @@ function loadImage(src){
   return new Promise((ok, fail) => { const img = new Image(); img.onload = () => ok(img); img.onerror = fail; img.src = src; });
 }
 
-/* returns the barcode text, or null. Tries a couple of sizes and both orientations
-   (the e-ticket barcode runs down the strip), on a white background so transparent
-   PNGs scan too. */
-function scanBarcode(img){
+/* returns the barcode text, or null. Tries a few sizes and both orientations (the
+   e-ticket barcode runs down the strip), on white so transparent PNGs scan too.
+   Async: it pauses between tries so the slot animation keeps running on phones. */
+const nextPaint = () => new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
+
+async function scanBarcode(img){
   if (!window.ZXing) return null;
   const hints = new Map();
   hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.CODE_128]);
@@ -1461,20 +1480,23 @@ function scanBarcode(img){
   const reader = new ZXing.MultiFormatReader();
   reader.setHints(hints);
   const longest = Math.max(img.naturalWidth, img.naturalHeight);
-  // full size first: shrinking a tall phone screenshot makes the barcode too small to read
-  for (const target of [4000, 1600, 900]){
-    const k = Math.min(1, target / longest);
-    const w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
+  const MAX_AREA = 12e6; // stay under iOS Safari's canvas size limit
+  for (const target of [3000, 1600, 900]){
+    let k = Math.min(1, target / longest);
+    k = Math.min(k, Math.sqrt(MAX_AREA / (img.naturalWidth * img.naturalHeight)));
+    const w = Math.max(1, Math.round(img.naturalWidth * k)), h = Math.max(1, Math.round(img.naturalHeight * k));
     for (const turn of [0, 90]){
-      const c = document.createElement("canvas");
-      c.width = turn ? h : w;
-      c.height = turn ? w : h;
-      const ctx = c.getContext("2d");
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(0, 0, c.width, c.height);
-      if (turn){ ctx.translate(c.width, 0); ctx.rotate(Math.PI / 2); }
-      ctx.drawImage(img, 0, 0, w, h);
+      await nextPaint();
       try{
+        const c = document.createElement("canvas");
+        c.width = turn ? h : w;
+        c.height = turn ? w : h;
+        const ctx = c.getContext("2d");
+        if (!ctx) continue;
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, c.width, c.height);
+        if (turn){ ctx.translate(c.width, 0); ctx.rotate(Math.PI / 2); }
+        ctx.drawImage(img, 0, 0, w, h);
         const bmp = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(new ZXing.HTMLCanvasElementLuminanceSource(c)));
         return reader.decode(bmp).getText();
       }catch(e){ /* not found at this size/turn, keep trying */ }
@@ -1506,10 +1528,13 @@ function initStampPage(){
     setState("inserting"); // ticket slides into the slot
     msg.textContent = "Reading your ticket…";
     sub.textContent = "Please wait while Qoobee checks it.";
+    await nextPaint(); // show the slide-in and "Reading…" before any heavy work
+    const started = Date.now();
     let code = null;
-    try{ code = scanBarcode(await loadImage(url)); }catch(e){ code = null; }
-    await new Promise(r => setTimeout(r, 1500)); // let the slide-in finish
-    const type = TICKET_TYPES.find(t => t.code === code);
+    try{ code = await scanBarcode(await loadImage(url)); }catch(e){ code = null; } // any failure = spit it out
+    const left = 1500 - (Date.now() - started);
+    if (left > 0) await new Promise(r => setTimeout(r, left)); // let the slide-in finish
+    const type = TICKET_TYPES.find(t => t.scan === code || t.code === code);
     if (type){
       setState("approved");
       msg.textContent = "Ticket accepted";

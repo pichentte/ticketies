@@ -1170,3 +1170,46 @@ footer.site-footer{
   .kiosk-msg{font-size:1.2rem;}
   .kc-stamp{width:128px;right:-10px;}
 }
+
+/* ---------------- e-ticket front: hall line + title share one column, never overlap ---------------- */
+.et-textcol{
+  position:absolute;z-index:2;left:6%;right:calc(21.6cqw + 3%);top:9%;bottom:9%;
+  display:flex;flex-direction:column;gap:1.4cqw;min-width:0;
+}
+.et-textcol .et-hallseat{
+  position:static;left:auto;right:auto;top:auto;font-size:1.55cqw;letter-spacing:.08em;text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.et-textcol .et-title{
+  position:static;left:auto;right:auto;top:auto;transform:none;margin:0;
+  flex:1;display:flex;align-items:center;justify-content:center;text-align:center;
+  line-height:.95;overflow:hidden;min-height:0;
+}
+
+/* barcode on a white sticker label: high contrast + quiet margin on every strip colour */
+.et-bc-label{
+  position:absolute;top:7%;bottom:7%;left:0;right:0;margin:0 auto;width:fit-content;
+  background:#fff;border-radius:1cqw;padding:1.6cqw 1.2cqw;box-shadow:0 .3cqw .8cqw rgba(0,0,0,.18);
+  display:flex;align-items:center;justify-content:center;
+}
+.et-bc-label .et-barcode-img{
+  position:static;margin:0;height:100%;width:auto;max-width:none;
+  image-rendering:pixelated;image-rendering:crisp-edges;
+}
+@supports (image-rendering:pixelated){ .et-bc-label .et-barcode-img{image-rendering:pixelated;} }
+
+/* ticket page: Kawaii Pass button, plain until hovered/tapped, then soft pink */
+.kawaii-pass{
+  display:block;margin:0 22px 14px;padding:13px;border-radius:12px;text-align:center;text-decoration:none;
+  font-weight:800;letter-spacing:.04em;color:#2E3A2F;background:#fff;border:1.5px solid #D9C9B2;
+  transition:background .25s ease,color .25s ease,border-color .25s ease,transform .2s ease;
+}
+.kawaii-pass:hover,.kawaii-pass:focus-visible,.kawaii-pass:active{
+  background:#f7a8c4;border-color:#f7a8c4;color:#fff;transform:translateY(-1px);
+}
+.receipt{margin:22px auto 6px;}
+
+/* home splash: 5.1s bar (payment "Processing…" keeps 2.6s) + text swap fade */
+#splash .bar-fill{animation-duration:5.1s;}
+#splashText{transition:opacity .18s ease;}
+#splashText.swap{opacity:0;}
