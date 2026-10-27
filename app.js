@@ -24,6 +24,23 @@ function ticketType(id){
   return TICKET_TYPES.find(t => t.id === id) || TICKET_TYPES[0];
 }
 
+/* ["stinki","stinki","babies"] -> "2× Stinki · 1× Kawaii Babies" */
+function typeBreakdown(types){
+  return TICKET_TYPES
+    .map(t => ({ t, n: types.filter(id => id === t.id).length }))
+    .filter(x => x.n)
+    .map(x => `${x.n}× ${x.t.name}`)
+    .join(" · ");
+}
+
+/* "2026-10-27T…" -> "27th October 2026" */
+function longDate(iso){
+  const d = new Date(iso);
+  const day = d.getDate();
+  const suffix = day % 100 >= 11 && day % 100 <= 13 ? "th" : ({ 1: "st", 2: "nd", 3: "rd" }[day % 10] || "th");
+  return `${day}${suffix} ${d.toLocaleDateString("en-GB", { month: "long" })} ${d.getFullYear()}`;
+}
+
 /* UK = BBFC (U/PG/12A/15/18),
    Malaysia = LPF classes since Feb 2023 (U/P12/13/16/18).
    Most MY values are inferred — few of these films list an LPF rating. */
@@ -303,14 +320,14 @@ async function sendTicketEmail(t, email){
           time_myt: win.myt,
           total: t.total,
           ticket_numbers: t.numbers.map(n => String(n).padStart(6, "0")).join(", "),
-          issued: t.issued,
+          issued: t.issuedAt ? longDate(t.issuedAt) : t.issued,
           name: t.name || "Guest",
           payment_method: t.payMethod + (t.cardLast4 ? " ····" + t.cardLast4 : ""),
-          ticket_types: t.types.map(id => ticketType(id).name).join(", "),
+          ticket_types: typeBreakdown(t.types),
           subtotal: t.tax ? t.tax.net : t.total,
           tax_label: t.tax ? `${t.tax.name} ${t.tax.pct}% (incl.)` : "Tax (incl.)",
           tax_amount: t.tax ? t.tax.tax : "",
-          logo_url: new URL("assets/bunchies-logo.png", location.href).href,
+          logo_url: new URL("assets/email-logo.png", location.href).href, // bunny + wordmark baked in, email apps can't load the font
           ticket_link: ticketLink(t)
         }
       })
@@ -1051,7 +1068,6 @@ function eticketHtml(t, i){
       <div class="et-art">
         <div class="et-art-fill" style="background-image:url('${art}')"></div>
         <img class="et-poster" src="${art}" alt="">
-        <div class="et-premiere">${escapeHtml(hallName)}</div>
         <div class="et-hallseat">${escapeHtml(hallName)} • SEAT #${escapeHtml(t.seats[i])}</div>
         <h3 class="et-title" style="font-family:'${font}',serif;font-weight:${["Anton", "Bebas Neue", "Archivo Black"].includes(font) ? 400 : 700};font-size:${titleSize}cqw">${escapeHtml(t.title)}</h3>
       </div>
@@ -1104,7 +1120,8 @@ function setupGift(ticket){
   again.type = "button";
   again.textContent = "Your gifties";
   again.addEventListener("click", openGift);
-  document.querySelector(".ticket-actions").prepend(again);
+  document.querySelector(".topbar").appendChild(again); // sits on the right of the header
+
   // pop up on its own once per ticket
   const seenKey = "pawnchies_gift_seen_" + (ticket.issuedAt || "");
   try{ if (localStorage.getItem(seenKey)) return; localStorage.setItem(seenKey, "1"); }catch(e){}
@@ -1130,10 +1147,16 @@ function flyPlane(layer){
   layer.querySelector(".gift-pop").classList.add("leave");
   const stage = document.createElement("div");
   stage.className = "plane-stage";
-  // dashed trail drawn along the same curve the plane follows
+  // one path in real screen pixels: the trail draws it and the plane flies it (offset-path),
+  // so they always line up, on a phone or a big screen
+  const w = window.innerWidth, h = window.innerHeight;
+  const cx = w / 2, cy = h / 2;
+  const d = `M ${-0.08 * w} ${0.88 * h} C ${0.2 * w} ${0.1 * h}, ${0.42 * w} ${0.95 * h}, ${0.62 * w} ${0.42 * h}` +
+            ` S ${0.95 * w} ${0.12 * h}, ${cx} ${cy}`;
   stage.innerHTML = `
-    <svg class="plane-trail" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M-60,520 C200,80 420,620 620,260 S880,120 500,300" />
+    <svg class="plane-trail" viewBox="0 0 ${w} ${h}" aria-hidden="true">
+      <defs><mask id="trailReveal" maskUnits="userSpaceOnUse"><path class="trail-reveal" d="${d}" /></mask></defs>
+      <path class="trail-line" d="${d}" mask="url(#trailReveal)" />
     </svg>
     <div class="plane">
       <svg viewBox="0 0 64 64" aria-hidden="true">
@@ -1143,19 +1166,43 @@ function flyPlane(layer){
       </svg>
     </div>`;
   layer.appendChild(stage);
+  const plane = stage.querySelector(".plane");
+  plane.style.offsetPath = `path("${d}")`;
+  // the mask is one solid stroke that "draws" along the path in step with the plane
+  const reveal = stage.querySelector(".trail-reveal");
+  const len = reveal.getTotalLength();
+  reveal.style.strokeDasharray = `${len} ${len}`;
+  reveal.style.setProperty("--len", len);
   // plane lands in the middle, then unfolds into the letter
   stage.querySelector(".plane").addEventListener("animationend", () => openLetter(layer, stage), { once: true });
+}
+
+/* the letter (title + paragraphs) is capped at 5000 characters so it always fits the layout */
+const GIFT_LETTER_MAX = 5000;
+function capLetter(letter){
+  let left = GIFT_LETTER_MAX - letter.title.length;
+  const body = [];
+  for (const p of letter.body){
+    if (left <= 0) break;
+    body.push(p.length > left ? p.slice(0, Math.max(0, left - 1)).trimEnd() + "…" : p);
+    left -= p.length;
+  }
+  return { title: letter.title.slice(0, GIFT_LETTER_MAX), body };
 }
 
 function openLetter(layer, stage){
   stage.classList.add("landed");
   const letter = document.createElement("div");
   letter.className = "gift-letter";
+  // text scrolls inside its own box so roses, close button and Qoobee never cover it
+  const { title, body } = capLetter(GIFT_LETTER);
   letter.innerHTML = `
     <button class="gift-close" type="button" aria-label="Close">✕</button>
-    <h3>${escapeHtml(GIFT_LETTER.title)}</h3>
-    ${GIFT_LETTER.body.map(p => `<p>${escapeHtml(p)}</p>`).join("")}
-    <p class="gift-sign">${escapeHtml(GIFT_LETTER.sign)}</p>`;
+    <div class="gift-letter-text">
+      <h3>${escapeHtml(title)}</h3>
+      ${body.map(p => `<p>${escapeHtml(p)}</p>`).join("")}
+      <p class="gift-sign">${escapeHtml(GIFT_LETTER.sign)}</p>
+    </div>`;
   letter.insertAdjacentHTML("beforeend", `<img class="gift-rose-qoobee" src="assets/qoobee-rose.gif" alt="">`);
   setTimeout(() => {
     stage.remove();
@@ -1231,7 +1278,7 @@ function initTicketPage(){
 
   document.getElementById("ticketList").innerHTML = ticket.seats.map((_, i) => eticketHtml(ticket, i)).join("");
   document.getElementById("ticketSummary").textContent =
-    `${ticket.name ? "Purchased by " + ticket.name + " · " : ""}${ticket.title} · ${ticket.seats.length > 1 ? "Seats" : "Seat"} ${ticket.seats.join(", ")} · Total ${ticket.total}${ticket.tax ? ` (incl. ${ticket.tax.name} ${ticket.tax.tax})` : ""} · ${ticket.payMethod}${ticket.cardLast4 ? " ····" + ticket.cardLast4 : ""}`;
+    `${ticket.name ? "Purchased by " + ticket.name + " · " : ""}${ticket.title} · ${ticket.seats.length > 1 ? "Seats" : "Seat"} ${ticket.seats.join(", ")} · ${typeBreakdown(ticket.types)} · Total ${ticket.total}${ticket.tax ? ` (incl. ${ticket.tax.name} ${ticket.tax.tax})` : ""} · ${ticket.payMethod}${ticket.cardLast4 ? " ····" + ticket.cardLast4 : ""}`;
 
   if (window.JsBarcode){
     document.querySelectorAll(".et-barcode svg").forEach(svg => {
