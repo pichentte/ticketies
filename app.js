@@ -1559,8 +1559,8 @@ function initStampPage(){
     if (left > 0) await new Promise(r => setTimeout(r, left)); // the "scan" always takes a moment
     if (type){
       setState("approved");
-      msg.textContent = "Ticket accepted";
-      sub.textContent = "Enjoy the movie! Show this screen at the door.";
+      msg.textContent = "Kawaii Approved by General Kawaii!";
+      sub.textContent = "Enjoy the movie and show your kawaii ticketies to Kawaii Yangzhi at the door.";
       const now = new Date();
       result.innerHTML = `
         <div class="kiosk-card ${type.metal}">
@@ -1599,7 +1599,7 @@ function initStampPage(){
    While testing, each new push to main wipes the saved ticket and restarts the
    000001 numbering. When it's time to "launch movie ticket history", set this
    to true and tickets will be kept across deploys. */
-const KEEP_TICKET_HISTORY = false;
+const KEEP_TICKET_HISTORY = true;
 
 async function resetHistoryOnNewDeploy(){
   if (KEEP_TICKET_HISTORY) return;
