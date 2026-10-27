@@ -1100,7 +1100,7 @@ function eticketHtml(t, i){
 /* ---------------- secret anniversary gift ----------------
    Only shows when the ticket was emailed to one of these addresses.
    Testing: put your own email here first, then swap in hers. */
-const GIFT_EMAILS = ["kya20130@gmail.com"];
+const GIFT_EMAILS = ["kya20130@gmail.com", "thejuliette69@gmail.com"]; // hers + your test email
 
 /* the letter inside the paper plane — each string is one paragraph */
 const GIFT_LETTER = {
@@ -1224,6 +1224,10 @@ function openLetter(layer, stage){
   letter.insertAdjacentHTML("beforeend", `<img class="gift-rose-qoobee" src="assets/qoobee-rose.gif" alt="">`);
   setTimeout(() => {
     stage.remove();
+    // the faded-out popup still took up room in the layer and squashed the letter
+    // sideways on phones, so take it out completely before the letter goes in
+    const pop = layer.querySelector(".gift-pop");
+    if (pop) pop.remove();
     layer.appendChild(letter);
     rosesBloom(letter);
     petalShower(layer);
