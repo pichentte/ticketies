@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Check-in</title>
+<link rel="icon" href="assets/polaroid-3.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Courier+Prime:wght@400;700&family=Grenze+Gotisch:wght@700&family=Oswald:wght@400;700&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="style.css">
+<!-- barcode scanner (Safari has no built-in one) -->
+<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="ticket.html" class="brand" style="text-decoration:none;">← My ticket</a>
+</header>
+
+<main id="stampRoot">
+  <div class="kiosk" id="kiosk">
+    <div class="kiosk-head">
+      <span>PAWNCHINEMA</span>
+      <span class="kiosk-head-sub">TICKET CHECK-IN</span>
+    </div>
+
+    <div class="kiosk-screen" id="kioskScreen">
+      <div class="kiosk-scanline"></div>
+      <p class="kiosk-msg" id="kioskMsg">Please insert your ticket</p>
+      <p class="kiosk-sub" id="kioskSub">Screenshot the back of your e-ticket (the barcode side), then tap Insert ticket.</p>
+      <div class="kiosk-result" id="kioskResult"></div>
+    </div>
+
+    <div class="kiosk-slot">
+      <div class="slot-lip"></div>
+      <div class="slot-window"><img class="kiosk-paper" id="kioskPaper" alt=""></div>
+    </div>
+
+    <label class="pick-btn kiosk-insert" id="kioskInsert">
+      <span id="kioskInsertText">Insert ticket</span>
+      <input type="file" accept="image/*" id="kioskFile" hidden>
+    </label>
+  </div>
+</main>
+
+<footer class="site-footer">© Rockvengers (30120112). All rights reserved.</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

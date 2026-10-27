@@ -1442,6 +1442,111 @@ function initTicketPage(){
   });
 }
 
+/* ---------------- check-in kiosk (stamp.html) ----------------
+   Insert a picture of the e-ticket's barcode side: the kiosk scans the barcode and
+   stamps it if it's one of the ticket-type codes, or spits it back out if not. */
+
+function loadImage(src){
+  return new Promise((ok, fail) => { const img = new Image(); img.onload = () => ok(img); img.onerror = fail; img.src = src; });
+}
+
+/* returns the barcode text, or null. Tries a couple of sizes and both orientations
+   (the e-ticket barcode runs down the strip), on a white background so transparent
+   PNGs scan too. */
+function scanBarcode(img){
+  if (!window.ZXing) return null;
+  const hints = new Map();
+  hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.CODE_128]);
+  hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+  const reader = new ZXing.MultiFormatReader();
+  reader.setHints(hints);
+  const longest = Math.max(img.naturalWidth, img.naturalHeight);
+  // full size first: shrinking a tall phone screenshot makes the barcode too small to read
+  for (const target of [4000, 1600, 900]){
+    const k = Math.min(1, target / longest);
+    const w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
+    for (const turn of [0, 90]){
+      const c = document.createElement("canvas");
+      c.width = turn ? h : w;
+      c.height = turn ? w : h;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, c.width, c.height);
+      if (turn){ ctx.translate(c.width, 0); ctx.rotate(Math.PI / 2); }
+      ctx.drawImage(img, 0, 0, w, h);
+      try{
+        const bmp = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(new ZXing.HTMLCanvasElementLuminanceSource(c)));
+        return reader.decode(bmp).getText();
+      }catch(e){ /* not found at this size/turn, keep trying */ }
+    }
+  }
+  return null;
+}
+
+function initStampPage(){
+  const root = document.getElementById("stampRoot");
+  if (!root) return;
+  const kiosk = document.getElementById("kiosk");
+  const msg = document.getElementById("kioskMsg");
+  const sub = document.getElementById("kioskSub");
+  const result = document.getElementById("kioskResult");
+  const paper = document.getElementById("kioskPaper");
+  const file = document.getElementById("kioskFile");
+  const insertText = document.getElementById("kioskInsertText");
+  const setState = st => { kiosk.dataset.state = st; };
+  setState("idle");
+
+  file.addEventListener("change", async () => {
+    const f = file.files && file.files[0];
+    file.value = ""; // so the same picture can be inserted again
+    if (!f) return;
+    const url = URL.createObjectURL(f);
+    result.innerHTML = "";
+    paper.src = url;
+    setState("inserting"); // ticket slides into the slot
+    msg.textContent = "Reading your ticket…";
+    sub.textContent = "Please wait while Qoobee checks it.";
+    let code = null;
+    try{ code = scanBarcode(await loadImage(url)); }catch(e){ code = null; }
+    await new Promise(r => setTimeout(r, 1500)); // let the slide-in finish
+    const type = TICKET_TYPES.find(t => t.code === code);
+    if (type){
+      setState("approved");
+      msg.textContent = "Ticket accepted";
+      sub.textContent = "Enjoy the movie! Show this screen at the door.";
+      const now = new Date();
+      result.innerHTML = `
+        <div class="kiosk-card ${type.metal}">
+          <div class="kc-strip"></div>
+          <div class="kc-body">
+            <span class="kc-label">TICKET TYPE</span>
+            <b class="kc-type">${escapeHtml(type.name.toUpperCase())}</b>
+            <span class="kc-label">CODE</span>
+            <b class="kc-code">${escapeHtml(type.code)}</b>
+            <span class="kc-label">CHECKED IN</span>
+            <b>${escapeHtml(longDate(now.toISOString()))} · ${now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</b>
+          </div>
+          <div class="kc-stamp" aria-label="Kawaii approved">
+            <svg viewBox="0 0 240 110" aria-hidden="true">
+              <defs><filter id="ink"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="3.2"/></filter></defs>
+              <g filter="url(#ink)" fill="none" stroke="#d61f3a">
+                <rect x="6" y="6" width="228" height="98" rx="12" stroke-width="6"/>
+                <rect x="16" y="16" width="208" height="78" rx="8" stroke-width="2.5"/>
+                <text x="120" y="52" text-anchor="middle" fill="#d61f3a" stroke="none" font-family="Oswald, Impact, sans-serif" font-weight="700" font-size="32" letter-spacing="2">KAWAII</text>
+                <text x="120" y="84" text-anchor="middle" fill="#d61f3a" stroke="none" font-family="Oswald, Impact, sans-serif" font-weight="700" font-size="28" letter-spacing="3">APPROVED</text>
+              </g>
+            </svg>
+          </div>
+        </div>`;
+    } else {
+      setState("rejected"); // slot spits it back out
+      msg.textContent = "This isn't a Pawnchinema ticket";
+      sub.textContent = "Try a clear screenshot of the barcode side of your e-ticket.";
+    }
+    insertText.textContent = "Insert another ticket";
+  });
+}
+
 /* ---------------- testing: fresh ticket history on every deploy ----------------
    While testing, each new push to main wipes the saved ticket and restarts the
    000001 numbering. When it's time to "launch movie ticket history", set this
@@ -1479,6 +1584,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupSplash();
   initMoviePage();
   initPaymentPage();
+  initStampPage();
   resetHistoryOnNewDeploy().then(initTicketPage); // ticket page waits so it never flashes a wiped ticket
 
   // re-render once a fresh live rate arrives (first visit starts on the fallback rate)

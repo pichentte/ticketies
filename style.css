@@ -1082,3 +1082,91 @@ footer.site-footer{
   position:absolute;top:9%;bottom:9%;left:0;right:0;margin:0 auto;height:82%;width:auto;max-width:80%;
   object-fit:contain;image-rendering:crisp-edges;
 }
+
+/* ---------------- check-in kiosk (stamp.html) ---------------- */
+#stampRoot{max-width:460px;}
+.kiosk{
+  margin:26px auto 10px;padding:18px 18px 22px;border-radius:26px;
+  background:linear-gradient(160deg,#2a2830,#17161b 55%,#0f0e12);
+  border:1px solid #35323d;box-shadow:0 24px 60px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06);
+}
+.kiosk-head{display:flex;justify-content:space-between;align-items:baseline;margin:0 4px 12px;
+  font-family:"Oswald","Bebas Neue",sans-serif;font-weight:700;letter-spacing:.12em;color:var(--gold);font-size:1rem;}
+.kiosk-head-sub{font-size:.72rem;color:var(--muted);letter-spacing:.16em;}
+
+/* the screen */
+.kiosk-screen{
+  position:relative;overflow:hidden;min-height:250px;border-radius:16px;padding:20px 18px;
+  background:radial-gradient(circle at 50% 0%,#1d2a3a,#0b1018 75%);
+  border:2px solid #0a0d12;box-shadow:inset 0 0 30px rgba(80,160,255,.12);
+  text-align:center;color:#d8ecff;transition:background .4s ease;
+}
+.kiosk-msg{margin:6px 0 6px;font-family:"Oswald",sans-serif;font-size:1.35rem;letter-spacing:.04em;}
+.kiosk-sub{margin:0 auto;max-width:300px;font-size:.84rem;color:#9fb8cf;line-height:1.5;}
+.kiosk-scanline{
+  position:absolute;left:0;right:0;top:-10%;height:28%;pointer-events:none;opacity:0;
+  background:linear-gradient(180deg,transparent,rgba(110,200,255,.25),transparent);
+}
+.kiosk[data-state="inserting"] .kiosk-scanline{opacity:1;animation:scan 1.1s linear infinite;}
+@keyframes scan{from{top:-30%;}to{top:100%;}}
+.kiosk[data-state="rejected"] .kiosk-screen{background:radial-gradient(circle at 50% 0%,#3a1d22,#170b0e 75%);color:#ffd9de;}
+.kiosk[data-state="rejected"] .kiosk-sub{color:#e7a9b1;}
+.kiosk[data-state="approved"] .kiosk-screen{background:radial-gradient(circle at 50% 0%,#1d3a2a,#0b1810 75%);color:#d9ffe6;}
+.kiosk[data-state="approved"] .kiosk-sub{color:#a9e7bf;}
+
+/* the slot: the picture slides down into it (and back out if rejected) */
+.kiosk-slot{position:relative;height:150px;margin-top:14px;}
+.slot-window{position:absolute;left:0;right:0;top:0;bottom:20px;overflow:hidden;}
+.slot-lip{
+  position:absolute;left:12%;right:12%;bottom:6px;height:16px;border-radius:8px;
+  background:linear-gradient(180deg,#050506,#24222a);box-shadow:inset 0 3px 6px rgba(0,0,0,.9),0 1px 0 rgba(255,255,255,.08);
+}
+.kiosk-paper{
+  position:absolute;left:0;right:0;margin:0 auto;bottom:0;width:104px;max-height:132px;object-fit:cover;object-position:top;
+  border-radius:6px;background:#fff;box-shadow:0 6px 14px rgba(0,0,0,.45);opacity:0;
+}
+.kiosk[data-state="inserting"] .kiosk-paper{opacity:1;animation:paper-in 1.4s cubic-bezier(.5,0,.75,1) forwards;}
+@keyframes paper-in{0%{transform:translateY(-6%);}25%{transform:translateY(0);}100%{transform:translateY(112%);}}
+.kiosk[data-state="rejected"] .kiosk-paper{opacity:1;animation:paper-out .8s cubic-bezier(.2,1.4,.4,1) forwards;}
+@keyframes paper-out{0%{transform:translateY(112%);}100%{transform:translateY(-4%) rotate(-3deg);}}
+.kiosk[data-state="rejected"]{animation:buzz .45s ease .55s;}
+@keyframes buzz{0%,100%{transform:none;}20%{transform:translateX(-8px);}40%{transform:translateX(7px);}60%{transform:translateX(-5px);}80%{transform:translateX(3px);}}
+
+.kiosk-insert{display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;margin-top:4px;}
+.kiosk[data-state="inserting"] .kiosk-insert{opacity:.4;pointer-events:none;}
+
+/* approved: the ticket card with the stamp thumping down */
+.kiosk-result:empty{display:none;}
+.kiosk-card{
+  position:relative;display:flex;margin:16px auto 4px;max-width:330px;text-align:left;
+  background:#fffdf7;color:#141008;border-radius:10px;overflow:hidden;
+  box-shadow:0 10px 24px rgba(0,0,0,.4);animation:card-rise .5s cubic-bezier(.2,1.2,.4,1);
+  font-family:"Courier Prime","Space Mono",monospace;
+}
+@keyframes card-rise{from{transform:translateY(30px);opacity:0;}to{transform:none;opacity:1;}}
+.kc-strip{flex:0 0 18px;}
+.kiosk-card.sage .kc-strip{background:linear-gradient(180deg,#7f9a7a,#cfe0c6 30%,#5d7559 55%,#c3d7b9 80%,#86a07f);}
+.kiosk-card.gold .kc-strip{background:linear-gradient(180deg,#d9a548,#f6d88f 30%,#a8742b 55%,#f1cd7e 80%,#d39c45);}
+.kiosk-card.bronze .kc-strip{background:linear-gradient(180deg,#a8683f,#e9b48a 30%,#7a4524 55%,#dea67b 80%,#b0744a);}
+.kc-body{display:flex;flex-direction:column;padding:12px 14px;gap:1px;font-size:.82rem;min-width:0;}
+.kc-label{font-size:.66rem;letter-spacing:.12em;color:#6b6b6b;margin-top:6px;}
+.kc-label:first-child{margin-top:0;}
+.kc-type{font-family:"Oswald",sans-serif;font-size:1.25rem;letter-spacing:.04em;}
+.kc-code{font-size:.74rem;overflow-wrap:anywhere;}
+.kc-stamp{
+  position:absolute;right:-6px;top:50%;width:150px;margin-top:-34px;pointer-events:none;
+  opacity:0;transform:scale(2.6) rotate(-4deg);mix-blend-mode:multiply;
+  animation:stamp-thump .35s cubic-bezier(.3,1.6,.5,1) .55s forwards;
+}
+.kc-stamp svg{width:100%;height:auto;display:block;}
+@keyframes stamp-thump{to{opacity:.9;transform:scale(1) rotate(-14deg);}}
+.kiosk[data-state="approved"]{animation:thud .3s ease .82s;}
+@keyframes thud{0%,100%{transform:none;}35%{transform:translateY(4px) scale(.995);}70%{transform:translateY(-2px);}}
+
+.btn-checkin{background:#2E3A2F !important;color:#F8F6EE !important;}
+@media (max-width:520px){
+  .kiosk{margin-top:16px;padding:14px 14px 18px;border-radius:22px;}
+  .kiosk-screen{min-height:230px;padding:16px 12px;}
+  .kiosk-msg{font-size:1.2rem;}
+  .kc-stamp{width:128px;right:-10px;}
+}
