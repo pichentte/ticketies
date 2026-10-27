@@ -389,7 +389,7 @@ function initTicketPage(){
     ticket = JSON.parse(localStorage.getItem("pawnchies_ticket"));
   }catch(e){ ticket = null; }
   if (!ticket){
-    location.href = "ticket.html";
+    location.href = "index.html";
     return;
   }
   document.getElementById("ticketMovie").textContent = ticket.movieCode;
