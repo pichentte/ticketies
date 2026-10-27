@@ -1658,9 +1658,19 @@ function initStampPage(){
    While testing, each new push to main wipes the saved ticket and restarts the
    000001 numbering. When it's time to "launch movie ticket history", set this
    to true and tickets will be kept across deploys. */
-const KEEP_TICKET_HISTORY = false;
+const KEEP_TICKET_HISTORY = true;
+
+/* launch: every device wipes its test tickets ONE last time (numbering back to 000001),
+   then keeps tickets from then on. Bump the id only if you ever want another clean start. */
+const LAUNCH_ID = "launch-1";
 
 async function resetHistoryOnNewDeploy(){
+  try{
+    if (localStorage.getItem("pawnchies_launch") !== LAUNCH_ID){
+      ["pawnchies_ticket", "pawnchies_ticket_seq", "pawnchies_booking"].forEach(k => localStorage.removeItem(k));
+      localStorage.setItem("pawnchies_launch", LAUNCH_ID);
+    }
+  }catch(e){}
   if (KEEP_TICKET_HISTORY) return;
   try{
     // GitHub Pages gives app.js a new ETag / Last-Modified on every deploy
