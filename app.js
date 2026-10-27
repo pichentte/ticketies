@@ -1509,7 +1509,63 @@ async function scanBarcode(img){
    plays the full scan for show, then stamps the ticket saved on this device.
    Set to true to try the barcode scanner again. */
 const KIOSK_SCAN = false;
-let kioskSeat = 0; // each insert stamps the next seat's ticket
+let lastApproved = null;
+
+const METAL_STOPS = {
+  sage:   ["#7f9a7a", "#cfe0c6", "#5d7559", "#c3d7b9", "#86a07f"],
+  gold:   ["#d9a548", "#f6d88f", "#a8742b", "#f1cd7e", "#d39c45"],
+  bronze: ["#a8683f", "#e9b48a", "#7a4524", "#dea67b", "#b0744a"]
+};
+
+/* draws the stamped cards onto one image and saves it (on iPhone it opens, then hold > Save to Photos) */
+async function downloadApproved(data){
+  if (!data) return;
+  try{ await document.fonts.ready; }catch(e){}
+  const S = 2, W = 360, CH = 190, GAP = 16, PAD = 20, HEAD = 56;
+  const c = document.createElement("canvas");
+  c.width = W * S;
+  c.height = (HEAD + data.items.length * (CH + GAP) + PAD) * S;
+  const x = c.getContext("2d");
+  x.scale(S, S);
+  x.fillStyle = "#17161b"; x.fillRect(0, 0, W, c.height / S);
+  x.fillStyle = "#ffd53d"; x.font = "700 18px Oswald, Impact, sans-serif"; x.textAlign = "center";
+  x.fillText("PAWNCHINEMA · KAWAII PASS", W / 2, 34);
+  data.items.forEach(({ type, label }, i) => {
+    const top = HEAD + i * (CH + GAP), left = PAD, cw = W - PAD * 2;
+    x.save();
+    x.beginPath(); x.roundRect ? x.roundRect(left, top, cw, CH, 10) : x.rect(left, top, cw, CH); x.clip();
+    x.fillStyle = "#fffdf7"; x.fillRect(left, top, cw, CH);
+    const g = x.createLinearGradient(0, top, 0, top + CH);
+    (METAL_STOPS[type.metal] || METAL_STOPS.gold).forEach((col, k) => g.addColorStop(k / 4, col));
+    x.fillStyle = g; x.fillRect(left, top, 18, CH);
+    x.restore();
+    x.textAlign = "left"; x.fillStyle = "#141008";
+    let y = top + 24;
+    const row = (lab, val, font) => {
+      x.fillStyle = "#6b6b6b"; x.font = "11px 'Courier Prime', monospace"; x.fillText(lab, left + 32, y); y += 17;
+      x.fillStyle = "#141008"; x.font = font || "700 13px 'Courier Prime', monospace"; x.fillText(val, left + 32, y); y += 22;
+    };
+    row("TICKET TYPE", type.name.toUpperCase(), "700 20px Oswald, Impact, sans-serif");
+    if (label) row("TICKET", label);
+    row("CODE", type.code);
+    row("CHECKED IN", data.checkedIn);
+    // the red stamp
+    x.save();
+    x.translate(left + cw - 82, top + CH / 2); x.rotate(-14 * Math.PI / 180);
+    x.globalAlpha = 0.88; x.strokeStyle = "#d61f3a"; x.fillStyle = "#d61f3a";
+    x.lineWidth = 4; x.beginPath(); x.roundRect ? x.roundRect(-70, -32, 140, 64, 9) : x.rect(-70, -32, 140, 64); x.stroke();
+    x.lineWidth = 1.5; x.beginPath(); x.roundRect ? x.roundRect(-63, -25, 126, 50, 6) : x.rect(-63, -25, 126, 50); x.stroke();
+    x.textAlign = "center"; x.font = "700 20px Oswald, Impact, sans-serif"; x.fillText("KAWAII", 0, -3);
+    x.font = "700 17px Oswald, Impact, sans-serif"; x.fillText("APPROVED", 0, 18);
+    x.restore();
+  });
+  const blob = await new Promise(r => c.toBlob(r, "image/png"));
+  const href = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = href; a.download = "kawaii-approved-ticket.png";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(href), 60000);
+}
 
 function savedTicket(){
   try{ const t = JSON.parse(localStorage.getItem("pawnchies_ticket")); return t ? upgradeTicket(t) : null; }catch(e){ return null; }
@@ -1540,44 +1596,46 @@ function initStampPage(){
     sub.textContent = "Please wait while Qoobee checks it.";
     await nextPaint(); // show the slide-in and "Reading…" before any heavy work
     const started = Date.now();
-    let type = null, seatLabel = "";
+    // every ticket to stamp: [{type, label}] — the whole order at once
+    let items = [];
     if (KIOSK_SCAN){
       let code = null;
       try{ code = await scanBarcode(await loadImage(url)); }catch(e){ code = null; } // any failure = spit it out
-      type = TICKET_TYPES.find(t => t.scan === code || t.code === code) || null;
+      const type = TICKET_TYPES.find(t => t.scan === code || t.code === code);
+      if (type) items = [{ type, label: "" }];
     } else {
-      // pretend scan: use the ticket bought on this device
+      // pretend scan: stamp every ticket in the order bought on this device
       const t = savedTicket();
       if (t && t.seats && t.seats.length){
-        const i = kioskSeat % t.seats.length;
-        kioskSeat++;
-        type = ticketType(t.types[i]);
-        seatLabel = `${t.title} · Seat ${t.seats[i]}`;
+        items = t.seats.map((seat, i) => ({ type: ticketType(t.types[i]), label: `${t.title} · Seat ${seat}` }));
       }
     }
     const left = 2200 - (Date.now() - started);
     if (left > 0) await new Promise(r => setTimeout(r, left)); // the "scan" always takes a moment
-    if (type){
+    if (items.length){
       setState("approved");
       msg.textContent = "Kawaii Approved by General Kawaii!";
       sub.textContent = "Enjoy the movie and show your kawaii ticketies to Kawaii Yangzhi at the door.";
       const now = new Date();
-      result.innerHTML = `
-        <div class="kiosk-card ${type.metal}">
+      const checkedIn = `${longDate(now.toISOString())} · ${now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
+      lastApproved = { items, checkedIn };
+      // one card per ticket; stamps land one after another
+      result.innerHTML = items.map(({ type, label }, i) => `
+        <div class="kiosk-card ${type.metal}" style="animation-delay:${i * 0.15}s">
           <div class="kc-strip"></div>
           <div class="kc-body">
             <span class="kc-label">TICKET TYPE</span>
             <b class="kc-type">${escapeHtml(type.name.toUpperCase())}</b>
-            ${seatLabel ? `<span class="kc-label">TICKET</span><b>${escapeHtml(seatLabel)}</b>` : ""}
+            ${label ? `<span class="kc-label">TICKET</span><b>${escapeHtml(label)}</b>` : ""}
             <span class="kc-label">CODE</span>
             <b class="kc-code">${escapeHtml(type.code)}</b>
             <span class="kc-label">CHECKED IN</span>
-            <b>${escapeHtml(longDate(now.toISOString()))} · ${now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</b>
+            <b>${escapeHtml(checkedIn)}</b>
           </div>
-          <div class="kc-stamp" aria-label="Kawaii approved">
+          <div class="kc-stamp" aria-label="Kawaii approved" style="animation-delay:${0.55 + i * 0.45}s">
             <svg viewBox="0 0 240 110" aria-hidden="true">
-              <defs><filter id="ink"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="3.2"/></filter></defs>
-              <g filter="url(#ink)" fill="none" stroke="#d61f3a">
+              <defs><filter id="ink${i}"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="${7 + i}"/><feDisplacementMap in="SourceGraphic" scale="3.2"/></filter></defs>
+              <g filter="url(#ink${i})" fill="none" stroke="#d61f3a">
                 <rect x="6" y="6" width="228" height="98" rx="12" stroke-width="6"/>
                 <rect x="16" y="16" width="208" height="78" rx="8" stroke-width="2.5"/>
                 <text x="120" y="52" text-anchor="middle" fill="#d61f3a" stroke="none" font-family="Oswald, Impact, sans-serif" font-weight="700" font-size="32" letter-spacing="2">KAWAII</text>
@@ -1585,7 +1643,8 @@ function initStampPage(){
               </g>
             </svg>
           </div>
-        </div>`;
+        </div>`).join("") + `<button type="button" class="pick-btn kiosk-download" id="kioskDownload">Download approved ticket${items.length > 1 ? "s" : ""}</button>`;
+      document.getElementById("kioskDownload").addEventListener("click", () => downloadApproved(lastApproved));
     } else {
       setState("rejected"); // slot spits it back out
       msg.textContent = KIOSK_SCAN ? "This isn't a Pawnchinema ticket" : "No ticket found";

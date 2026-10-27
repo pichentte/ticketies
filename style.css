@@ -1213,3 +1213,8 @@ footer.site-footer{
 #splash .bar-fill{animation-duration:5.1s;}
 #splashText{transition:opacity .18s ease;}
 #splashText.swap{opacity:0;}
+
+/* whole order stamped: cards stack, each stamp lands in turn */
+.kiosk-card + .kiosk-card{margin-top:12px;}
+.kiosk-card{animation-fill-mode:both;}
+.kiosk-download{margin-top:16px;}
