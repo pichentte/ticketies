@@ -1,36 +1,30 @@
 /* =====================================================================
    MOVIE DATA — edit this array to add/remove movies.
-   id must be unique and lowercase (m1, m2, m3...). Code shown on site
-   is just id.toUpperCase(), so "m1" displays as "M1".
+   id must be unique and lowercase (m1, m2, m3...).
    times are Malaysia time (MYT); the site shows them in UK time when the
    currency is GBP. trailer is a YouTube video id.
    hall must be one of the HALLS keys below.
    ===================================================================== */
-const SHOW_TITLES = true; // true = show film names instead of M1, M2...
-
-/* HALLS — names are placeholders, rename freely.
-   type "imax" = big curved seating, "standard" = flat rows.
-   priceGbp is the full (Stinki) price per seat in GBP, converted to MYR on the fly. */
+const SHOW_TITLES = true;
 const HALLS = {
-  h1:   { name: "Hall 1 (placeholder)",    type: "standard", rows: ["G","H","I","J","K","L","M","N","O"], seatsPerRow: 12, priceGbp: 5.99 },
-  h2:   { name: "Hall 2 (placeholder)",    type: "standard", rows: ["G","H","I","J","K","L","M","N","O"], seatsPerRow: 12, priceGbp: 5.99 },
-  imax: { name: "IMAX Hall (placeholder)", type: "imax",     rows: ["A","B","C","D","E","F","G","H","I","J","K","L"], seatsPerRow: 18, priceGbp: 10.99 }
+  h1:   { name: "Meowchkins Hall",    type: "standard", rows: ["G","H","I","J","K","L","M","N","O"], seatsPerRow: 12, priceGbp: 5.99 },
+  h2:   { name: "Swiss Roll Cake Hall",    type: "standard", rows: ["G","H","I","J","K","L","M","N","O"], seatsPerRow: 12, priceGbp: 5.99 },
+  imax: { name: "OPIUM ", type: "imax",     rows: ["A","B","C","D","E","F","G","H","I","J","K","L"], seatsPerRow: 18, priceGbp: 10.99 }
 };
-const MAX_SEATS = 8; // most seats one booking can hold
 
-/* ticket types, applied per seat */
+const MAX_SEATS = 8;
 const TICKET_TYPES = [
   // code = the fixed name printed and encoded on that type's barcode, metal = back strip colour
   { id: "stinki", name: "Stinki",        note: "Full price",  pay: 1,    code: "PICHIES-sweaties-armpits-0112", metal: "sage" },
   { id: "kawaii", name: "Kawaii",        note: "100% off",    pay: 0,    code: "KY5HIES-poo-oyen-3012",         metal: "gold" },
-  { id: "babies", name: "Kawaii Babies", note: "55% off",     pay: 0.45, code: "BUNCHIES-see-yuh-1212",         metal: "bronze" }
+  { id: "babies", name: "Kawaii Babies", note: "55% off",     pay: 0.45, code: "BUNCHIES-see-yuh-5555",         metal: "bronze" }
 ];
 
 function ticketType(id){
   return TICKET_TYPES.find(t => t.id === id) || TICKET_TYPES[0];
 }
 
-/* ratings differ by country: UK = BBFC (U/PG/12A/15/18),
+/* UK = BBFC (U/PG/12A/15/18),
    Malaysia = LPF classes since Feb 2023 (U/P12/13/16/18).
    Most MY values are inferred — few of these films list an LPF rating. */
 
@@ -95,7 +89,7 @@ function movieLabel(m){
   return (SHOW_TITLES ? m.title : m.id.toUpperCase()) + (hallOf(m).type === "imax" ? " · IMAX" : "");
 }
 
-/* ---------------- currency (MYR base, optional GBP) ---------------- */
+/* currency */
 const CURRENCY_KEY = "pawnchies_currency";
 const RATE_KEY = "pawnchies_rate_gbp";
 const RATE_MAX_AGE = 12 * 60 * 60 * 1000; // refresh the live rate twice a day
@@ -109,8 +103,7 @@ function setCurrency(code){
   try{ localStorage.setItem(CURRENCY_KEY, code); }catch(e){}
 }
 
-/* one seat's price in the current currency. MYR is rounded cinema-style to .90
-   (£5.99 -> RM 32.90, £10.99 -> RM 59.90) so it never shows odd cents */
+/* one seat's price in the current currency. MYR is rounded to .90 */
 function seatAmount(gbp){
   if (getCurrency() === "GBP") return Math.round(gbp * 100) / 100;
   if (gbp <= 0) return 0;
@@ -130,7 +123,7 @@ function formatTotal(seatGbps){
   return formatAmount(seatGbps.reduce((sum, g) => sum + seatAmount(g), 0));
 }
 
-/* prices are tax-inclusive: UK cinema tickets carry 20% VAT, Malaysian ones 25% entertainment duty */
+/* prices are tax-inclusive: UK, 20% VAT, & Malaysia, 25% */
 function taxInfo(){
   return getCurrency() === "GBP" ? { name: "VAT", rate: 0.2 } : { name: "Entertainment duty", rate: 0.25 };
 }
@@ -250,8 +243,6 @@ function displayTime(mytStr){
 }
 
 /* ---------------- e-ticket bits ---------------- */
-/* EmailJS (emailjs.com) — fill these three in to make "send ticket" really email.
-   Leave them empty and the site says email isn't set up instead of pretending. */
 const EMAILJS = { serviceId: "service_4stffcj", templateId: "template_7cs5908", publicKey: "JbgmG2uoYE-RjqwAs" };
 
 function emailConfigured(){
@@ -330,7 +321,7 @@ async function sendTicketEmail(t, email){
 
 const SPOTLIGHT_ID = "m1";
 
-/* Swap these paths once you have real photos. Put images in /assets. */
+/* Our images */
 const TEAM = [
   { name: "Irfan", role: "Co-founder", photo: "assets/team/irfan.jpg" },
   { name: "Kyshies", role: "Owner", photo: "assets/team/Kyshies.jpg" },
@@ -344,7 +335,6 @@ const ABOUT_COPY = `
 function getMovie(id){
   return MOVIES.find(m => m.id === id);
 }
-
 
 /* deterministic pseudo-random so the same movie always shows the same
    "taken" seats instead of reshuffling on every reload */
@@ -459,7 +449,7 @@ function setupHeroCarousel(){
   settle = setTimeout(playActive, 2000);
 }
 
-/* ---------------- trailers (YouTube, muted previews) ---------------- */
+/* ---------------- trailers ---------------- */
 function canHover(){
   return window.matchMedia("(hover:hover) and (pointer:fine)").matches;
 }
@@ -648,8 +638,7 @@ function initMoviePage(){
     });
   });
 
-  // seat map — imax rows bend toward the screen, standard rows stay flat.
-  // --x runs -1 (left edge) → 1 (right edge) and drives the curve in CSS.
+  // seat map — imax rows got curves, standard rows stay flat.
   const chosenSeats = [];
   const status = buildSeatStatus(movie.id, hall);
   const seatMap = document.getElementById("seatMap");
@@ -694,10 +683,7 @@ function initMoviePage(){
   const scrollHint = document.getElementById("scrollHint");
   const tncConfirm = document.getElementById("tncConfirm");
 
-  // unlock the checkbox once the end of the T&C is on screen. A marker at the
-  // bottom covers both cases: scrolled to the end, or short enough to need no
-  // scrolling at all (desktop). The scroll check is a fallback for old browsers.
-  function unlockTnc(){
+// TnC tick to allow continue payment
     agreeCheck.disabled = false;
     scrollHint.style.display = "none";
   }
@@ -817,7 +803,7 @@ function initMoviePage(){
   }
 }
 
-/* ---------------- payment page (money.html) ---------------- */
+/* ---------------- money.html ---------------- */
 function initPaymentPage(){
   const root = document.getElementById("paymentRoot");
   if (!root) return;
@@ -993,7 +979,7 @@ function initPaymentPage(){
   }
 }
 
-/* ---------------- ticket / receipt page (ticket.html) ---------------- */
+/* ---------------- ticket.html ---------------- */
 /* tickets saved before the e-ticket format get filled in so they still render */
 function upgradeTicket(t){
   const seats = t.seats || [t.seat];
