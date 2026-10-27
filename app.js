@@ -1663,7 +1663,7 @@ const KEEP_TICKET_HISTORY = true;
 
 /* launch: every device wipes its test tickets ONE last time (numbering back to 000001),
    then keeps tickets from then on. Bump the id only if you ever want another clean start. */
-const LAUNCH_ID = "launch-1";
+const LAUNCH_ID = "launch-2";
 
 async function resetHistoryOnNewDeploy(){
   try{
