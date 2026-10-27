@@ -334,7 +334,7 @@ const ABOUT_COPY = `
   <p><b>Locations</b></p>
   <ul>
     <li>PWC Stinki Puchong, beside the kek lapis</li>
-    <li>Plushkins House, Derby</li>
+    <li>PWC Plushkins House, Derby</li>
   </ul>
   <p>This cinema has security, so beware of Yangzhi…</p>
 `;
