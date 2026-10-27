@@ -843,3 +843,6 @@ footer.site-footer{
 .pay-tax b{color:var(--text);padding-top:4px;border-top:1px solid var(--panel-2);margin-top:4px;}
 /* JsBarcode puts an inline transform on its <svg>, which cancelled the rotation */
 .et-metal .et-barcode svg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(90deg) !important;}
+.about-copy ul{margin:0 0 10px;padding-left:20px;}
+.about-copy li{margin-bottom:4px;}
+.about-copy b{color:var(--text);}
