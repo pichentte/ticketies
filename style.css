@@ -508,7 +508,7 @@ footer.site-footer{
   display:grid;width:100%;aspect-ratio:1568/507;
   border-radius:10px;overflow:hidden;
   box-shadow:0 10px 28px rgba(0,0,0,.18);
-  font-family:"Space Mono",ui-monospace,monospace;
+  font-family:"Courier Prime","Space Mono",ui-monospace,monospace;
 }
 .eticket.front{grid-template-columns:67.9% 6.2% 1fr;}
 .et-art{position:relative;background:#222 center/cover no-repeat;color:#f4f1ea;}
@@ -533,7 +533,7 @@ footer.site-footer{
 .et-strip{background:#000;display:flex;align-items:center;justify-content:center;}
 .et-strip span{
   writing-mode:vertical-rl;transform:rotate(180deg);
-  font-family:"Bebas Neue",Impact,sans-serif;font-size:4.4cqw;letter-spacing:.06em;color:#fff;
+  font-family:"Oswald","Bebas Neue",Impact,sans-serif;font-weight:400;font-size:3.6cqw;letter-spacing:.06em;color:#fff;
 }
 .et-stub{
   background:#fff;color:#141008;text-align:right;
@@ -561,7 +561,7 @@ footer.site-footer{
   background:#fff;color:#141008;padding:3cqw 5cqw;
   display:flex;flex-direction:column;justify-content:center;
 }
-.et-terms h4{font-family:"Bebas Neue",Impact,sans-serif;font-weight:400;font-size:4.6cqw;line-height:1;margin:0 0 1.2cqw;}
+.et-terms h4{font-family:"Oswald","Bebas Neue",Impact,sans-serif;font-weight:700;letter-spacing:-.01em;font-size:4.6cqw;line-height:1;margin:0 0 1.2cqw;}
 .et-terms p{font-size:1.32cqw;letter-spacing:.08em;line-height:1.5;margin:0 0 1.3cqw;}
 .et-terms p:last-child{margin-bottom:0;}
 .ticket-actions{max-width:420px;margin:10px auto 0;}
@@ -651,9 +651,10 @@ footer.site-footer{
 
 /* ---------------- round 3 ---------------- */
 /* logo: bunny with the wordmark curving underneath */
-.brand-mark{position:relative;display:block;width:160px;height:84px;flex-shrink:0;}
+.brand-mark{position:relative;display:block;width:160px;height:108px;flex-shrink:0;}
 .brand-mark .brand-logo{position:absolute;left:50%;top:0;transform:translateX(-50%);height:58px;}
-.brand-arc{position:absolute;left:0;bottom:0;width:160px;height:46px;overflow:visible;}
+/* starts 4px under the bunny so the arc's raised ends never touch it */
+.brand-arc{position:absolute;left:0;top:62px;width:160px;height:46px;overflow:visible;}
 .brand-arc text{
   font-family:"Slash Signature","Grenze Gotisch",serif;font-size:24px;
   fill:var(--text);paint-order:stroke;stroke:rgba(0,0,0,.55);stroke-width:2px;
@@ -692,10 +693,10 @@ footer.site-footer{
 /* phone hero: description is desktop only, bigger logo needs more room */
 .hero-desc{display:none;}
 @media (max-width:859px){
-  .brand-mark{width:132px;height:70px;}
+  .brand-mark{width:132px;height:88px;}
   .brand-mark .brand-logo{height:46px;}
-  .brand-arc{width:132px;height:38px;}
-  .hero{margin-top:-102px;}
+  .brand-arc{width:132px;height:38px;top:50px;}
+  .hero{margin-top:-120px;}
 }
 
 /* desktop: tvOS x cinejoy — full-width cinematic hero + landscape shelves */
@@ -706,7 +707,7 @@ footer.site-footer{
     background:linear-gradient(180deg,rgba(11,11,13,.85),rgba(11,11,13,.35));
     -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
   }
-  .hero{display:block;position:relative;margin-top:-120px;}
+  .hero{display:block;position:relative;margin-top:-144px;}
   .hero-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;}
   .hero-track::-webkit-scrollbar{display:none;}
   .hero-slide{
@@ -755,3 +756,63 @@ footer.site-footer{
   .wide-meta{font-size:0.8rem;color:var(--muted);}
   .wide-meta .price-tag{display:inline;margin:0;font-size:0.8rem;}
 }
+
+/* ---------------- round 4 ---------------- */
+/* ratings: UK uses BBFC-style coloured squares, Malaysia LPF-style boxed tags */
+.rating-badge{
+  display:inline-flex;align-items:center;justify-content:center;vertical-align:1px;
+  min-width:1.9em;height:1.9em;padding:0 .35em;margin-right:4px;
+  font-weight:800;font-size:0.72rem;line-height:1;color:#fff;
+}
+.rating-badge.bbfc{border-radius:5px;}
+.bbfc.r-u{background:#1e9e47;}
+.bbfc.r-pg{background:#f2b600;color:#141008;}
+.bbfc.r-12a,.bbfc.r-12{background:#f27b00;}
+.bbfc.r-15{background:#e8197d;}
+.bbfc.r-18{background:#d6141d;}
+.rating-badge.lpf{border-radius:2px;background:transparent;border:1.5px solid currentColor;letter-spacing:.03em;}
+.lpf.r-u{color:#3ccf6e;}
+.lpf.r-p12{color:#ffd166;}
+.lpf.r-13{color:#ffa348;}
+.lpf.r-16{color:#ff7a59;}
+.lpf.r-18{color:#ff4d5a;}
+
+/* ticket types on the seat page */
+.ticket-types{display:flex;flex-direction:column;gap:10px;}
+.type-row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:var(--panel);border:1px solid var(--panel-2);border-radius:12px;padding:12px 14px;
+}
+.type-name{font-weight:800;}
+.type-note{font-size:0.78rem;color:var(--muted);}
+.type-ctrl{display:flex;align-items:center;gap:10px;}
+.type-btn{
+  width:32px;height:32px;border-radius:50%;border:1px solid var(--panel-2);
+  background:var(--panel-2);color:var(--text);font-size:1.1rem;font-weight:700;cursor:pointer;
+}
+.type-btn:disabled{opacity:.3;cursor:not-allowed;}
+.type-count{min-width:1.2em;text-align:center;font-weight:800;}
+.pay-types{margin-top:6px !important;color:var(--gold) !important;font-weight:700;}
+@media (min-width:860px){
+  #movieRoot > section{grid-column:2;}
+  #movieRoot > section:nth-of-type(1){grid-column:1;grid-row:1 / span 4;}
+}
+
+/* e-ticket art: blurred poster stretched across, sharp poster on the right */
+.et-art{background:#111;overflow:hidden;}
+.et-art::before{z-index:1;background:linear-gradient(90deg,rgba(0,0,0,.7),rgba(0,0,0,.35) 55%,rgba(0,0,0,.1));}
+.et-art-fill{
+  position:absolute;inset:-6%;background:center/cover no-repeat;
+  filter:blur(2.2cqw) saturate(1.2) brightness(.75);
+}
+.et-poster{
+  position:absolute;top:0;right:0;height:100%;width:auto;max-width:none;z-index:1;
+  box-shadow:-1.5cqw 0 3cqw rgba(0,0,0,.55);
+}
+.et-premiere{z-index:2;max-height:72%;}
+.et-hallseat{z-index:2;left:8%;right:34%;}
+.et-title{
+  z-index:2;left:8%;right:34%;white-space:normal;line-height:.95;
+  font-weight:700;text-transform:none;overflow-wrap:break-word;
+}
+.et-stub em{font-style:normal;font-size:1.3cqw;letter-spacing:.08em;color:#6b6b6b;}

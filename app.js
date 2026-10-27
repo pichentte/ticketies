@@ -10,61 +10,76 @@ const SHOW_TITLES = true; // true = show film names instead of M1, M2...
 
 /* HALLS — names are placeholders, rename freely.
    type "imax" = big curved seating, "standard" = flat rows.
-   price is per seat, in MYR (converted to GBP on the fly). */
+   priceGbp is the full (Stinki) price per seat in GBP, converted to MYR on the fly. */
 const HALLS = {
-  h1:   { name: "Hall 1 (placeholder)",    type: "standard", rows: ["G","H","I","J","K","L","M","N","O"], seatsPerRow: 12, price: 18 },
-  h2:   { name: "Hall 2 (placeholder)",    type: "standard", rows: ["G","H","I","J","K","L","M","N","O"], seatsPerRow: 12, price: 18 },
-  imax: { name: "IMAX Hall (placeholder)", type: "imax",     rows: ["A","B","C","D","E","F","G","H","I","J","K","L"], seatsPerRow: 18, price: 28 }
+  h1:   { name: "Hall 1 (placeholder)",    type: "standard", rows: ["G","H","I","J","K","L","M","N","O"], seatsPerRow: 12, priceGbp: 5.99 },
+  h2:   { name: "Hall 2 (placeholder)",    type: "standard", rows: ["G","H","I","J","K","L","M","N","O"], seatsPerRow: 12, priceGbp: 5.99 },
+  imax: { name: "IMAX Hall (placeholder)", type: "imax",     rows: ["A","B","C","D","E","F","G","H","I","J","K","L"], seatsPerRow: 18, priceGbp: 10.99 }
 };
 const MAX_SEATS = 8; // most seats one booking can hold
 
+/* ticket types, applied per seat */
+const TICKET_TYPES = [
+  { id: "stinki", name: "Stinki",        note: "Full price",  pay: 1 },
+  { id: "kawaii", name: "Kawaii",        note: "100% off",    pay: 0 },
+  { id: "babies", name: "Kawaii Babies", note: "55% off",     pay: 0.45 }
+];
+
+function ticketType(id){
+  return TICKET_TYPES.find(t => t.id === id) || TICKET_TYPES[0];
+}
+
+/* ratings differ by country: UK = BBFC (U/PG/12A/15/18),
+   Malaysia = LPF classes since Feb 2023 (U/P12/13/16/18).
+   Most MY values are inferred — few of these films list an LPF rating. */
+
 const MOVIES = [
-  { id: "m1", title: "Burning", year: 2018, hall: "h1", runtime: 148, rating: "15",
+  { id: "m1", title: "Burning", year: 2018, hall: "h1", runtime: 148, ratings: { uk: "15", my: "16" }, titleFont: "Cormorant Garamond",
     times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "irBLY-Ev9vo",
     poster: "https://image.tmdb.org/t/p/w500/kXiF80o74fE9gf3Utf9moAI7ar0.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/qQEt2FqF8McryFBNX30dyDJKiEK.jpg",
     overview: "A part-time courier runs into a girl from his old neighbourhood, who asks him to feed her cat while she travels. When she comes back with a wealthy, enigmatic man and then disappears, his suspicion grows." },
-  { id: "m2", title: "Bodies Bodies Bodies", year: 2022, hall: "h2", runtime: 94, rating: "15",
+  { id: "m2", title: "Bodies Bodies Bodies", year: 2022, hall: "h2", runtime: 94, ratings: { uk: "15", my: "18" }, titleFont: "Archivo Black",
     times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "cTzGKsZjBOY",
     poster: "https://image.tmdb.org/t/p/w500/hSuTjDmqRdy7Dii8ymnF2WILTeP.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/qYCl28dMJwRTzlbteTrW75szZPN.jpg",
     overview: "A group of wealthy twenty-somethings throw a hurricane party at a remote mansion and play a murder game. When one of them turns up dead, paranoia and accusations take over the night." },
-  { id: "m3", title: "Your Name", year: 2016, hall: "h1", runtime: 106, rating: "12A",
+  { id: "m3", title: "君の名は。", altTitle: "Your Name", year: 2016, hall: "h1", runtime: 106, ratings: { uk: "12A", my: "P12" }, titleFont: "Noto Serif JP",
     times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "TYku4P7MHdo",
     poster: "https://image.tmdb.org/t/p/w500/vfJFJPepRKapMd5G2ro7klIRysq.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/mMtUybQ6hL24FXo0F3Z4j2KG7kZ.jpg",
     overview: "A country girl in Japan and a boy in Tokyo start swapping bodies in their sleep. As they learn each other's lives through notes, they try to find each other, and a bigger secret comes out." },
-  { id: "m4", title: "Wolfwalkers", year: 2020, hall: "imax", runtime: 102, rating: "PG",
+  { id: "m4", title: "Wolfwalkers", year: 2020, hall: "imax", runtime: 102, ratings: { uk: "PG", my: "U" }, titleFont: "Cinzel",
     times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "d_Z_tybgPgg",
     poster: "https://image.tmdb.org/t/p/w500/vqGiNbdc2sDwsnivMMYzwAoSSu6.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/3zTbERSBLh7waK9811RTKGAcG86.jpg",
     overview: "In 17th-century Ireland, a young apprentice hunter arrives with her father to wipe out the last wolf pack. In the forest she befriends a free-spirited girl who can turn into a wolf." },
-  { id: "m5", title: "Parasite", year: 2019, hall: "h1", runtime: 133, rating: "15",
+  { id: "m5", title: "Parasite", year: 2019, hall: "h1", runtime: 133, ratings: { uk: "15", my: "18" }, titleFont: "Montserrat",
     times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "isOGD_7hNIY",
     poster: "https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/TU9NIjwzjoKPwQHoHshkFcQUCG.jpg",
     overview: "A struggling family gets themselves hired by a wealthy household one by one, posing as unrelated and qualified workers. Things go wrong as the two families' lives get tangled together." },
-  { id: "m6", title: "Hit Man", year: 2024, hall: "h2", runtime: 116, rating: "15",
+  { id: "m6", title: "Hit Man", year: 2024, hall: "h2", runtime: 116, ratings: { uk: "15", my: "18" }, titleFont: "Anton",
     times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "9a7C7Bxsm90",
     poster: "https://image.tmdb.org/t/p/w500/oil3EZwKFp3CWxZnfGfGglesvm9.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/nv6F6tz7r61DUhE7zgHwLJFcTYp.jpg",
     overview: "A mild-mannered professor moonlights as a fake hit man in police stings. He falls for a client who wants her husband dead, and the line between his act and reality starts to blur." },
-  { id: "m7", title: "Novocaine", year: 2025, hall: "imax", runtime: 110, rating: "15",
+  { id: "m7", title: "Novocaine", year: 2025, hall: "imax", runtime: 110, ratings: { uk: "15", my: "18" }, titleFont: "Bebas Neue",
     times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "99BLnkAlC1M",
     poster: "https://image.tmdb.org/t/p/w500/xmMHGz9dVRaMY6rRAlEX4W0Wdhm.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/lyBH2mFFU6qrHwD5QKotL2JnEb6.jpg",
     overview: "A bank assistant manager who can't feel physical pain is pulled into a robbery when the girl he likes is taken hostage. He turns his condition into his advantage." },
-  { id: "m8", title: "Companion", year: 2025, hall: "h1", runtime: 97, rating: "15",
+  { id: "m8", title: "Companion", year: 2025, hall: "h1", runtime: 97, ratings: { uk: "15", my: "18" }, titleFont: "Josefin Sans",
     times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "Qr_kX0D3DNA",
     poster: "https://image.tmdb.org/t/p/w500/oCoTgC3UyWGfyQ9thE10ulWR7bn.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/sc1abgWNXc29wSBaerrjGBih06l.jpg",
     overview: "Iris heads to a lake house with her boyfriend and his friends for a weekend away, and finds out something about their relationship that she was never meant to know." },
-  { id: "m9", title: "Strange Darling", year: 2024, hall: "h2", runtime: 97, rating: "18",
+  { id: "m9", title: "Strange Darling", year: 2024, hall: "h2", runtime: 97, ratings: { uk: "18", my: "18" }, titleFont: "Playfair Display",
     times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "F_F3f_Fqtrc",
     poster: "https://image.tmdb.org/t/p/w500/kWNCRgt3ocv19bYO0sk7TRuZuFY.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/I4ofwq3XfmwXAETUs5pjubcMJ0.jpg",
     overview: "A one-night stand turns into a night of violence, told out of order in six chapters." },
-  { id: "m10", title: "Heretic", year: 2024, hall: "imax", runtime: 111, rating: "15",
+  { id: "m10", title: "Heretic", year: 2024, hall: "imax", runtime: 111, ratings: { uk: "15", my: "16" }, titleFont: "Cormorant SC",
     times: ["12:30 AM", "3:00 AM", "5:30 AM"], trailer: "jpWUOxRozZg",
     poster: "https://image.tmdb.org/t/p/w500/fr96XzlzsONrQrGfdLMiwtQjott.jpg",
     backdrop: "https://image.tmdb.org/t/p/w1280/ag66gJCiZ06q1GSJuQlhGLi3Udx.jpg",
@@ -93,8 +108,20 @@ function setCurrency(code){
   try{ localStorage.setItem(CURRENCY_KEY, code); }catch(e){}
 }
 
-function formatPrice(myr){
-  return getCurrency() === "GBP" ? "£" + (myr * gbpPerMyr).toFixed(2) : "RM " + myr.toFixed(2);
+function formatPrice(gbp){
+  return getCurrency() === "GBP" ? "£" + gbp.toFixed(2) : "RM " + (gbp / gbpPerMyr).toFixed(2);
+}
+
+/* rating for the country matching the currency, as a styled badge */
+function ratingOf(m, country){
+  const r = m.ratings || { uk: m.rating || "", my: m.rating || "" };
+  return (country || (getCurrency() === "GBP" ? "uk" : "my")) === "uk" ? r.uk : r.my;
+}
+
+function ratingBadge(m){
+  const uk = getCurrency() === "GBP";
+  const r = ratingOf(m);
+  return `<span class="rating-badge ${uk ? "bbfc" : "lpf"} r-${String(r).toLowerCase()}" title="${uk ? "BBFC (UK)" : "LPF (Malaysia)"} rating">${escapeHtml(r)}</span>`;
 }
 
 function applyCachedRate(){
@@ -128,7 +155,7 @@ function refreshPrices(){
 }
 
 function posterHtml(m){
-  return m.poster ? `<img src="${m.poster}" alt="${m.title} poster" loading="lazy">` : `<div class="poster-ph"></div>`;
+  return m.poster ? `<img src="${m.poster}" alt="${m.altTitle || m.title} poster" loading="lazy">` : `<div class="poster-ph"></div>`;
 }
 
 function escapeHtml(str){
@@ -316,7 +343,7 @@ function renderBrowseRow(){
     <a class="poster-card" href="main.html?id=${m.id}" data-trailer="${m.trailer}">
       <div class="poster-wrap trailer-host">${posterHtml(m)}</div>
       <div class="code">${movieLabel(m)}</div>
-      <div class="price-tag">${formatPrice(hallOf(m).price)}</div>
+      <div class="price-tag">${formatPrice(hallOf(m).priceGbp)}</div>
     </a>
   `).join("");
 }
@@ -331,7 +358,7 @@ function renderSpotlight(){
       <span class="tag">THIS WEEK</span>
       <h3>${movieLabel(m)}</h3>
       <p>${hallOf(m).name} · ${m.times.map(displayTime).join(" / ")} ${tzLabel()}</p>
-      <p class="price-tag">${formatPrice(hallOf(m).price)} per seat</p>
+      <p class="price-tag">${formatPrice(hallOf(m).priceGbp)} per seat</p>
     </div>`;
 }
 
@@ -340,7 +367,7 @@ const HERO_IDS = ["m1", "m4", "m3", "m7", "m10"];
 
 function movieMeta(m){
   const hall = hallOf(m);
-  return [m.rating, fmtRuntime(m.runtime), hall.type === "imax" ? "IMAX" : hall.name].join(" · ");
+  return [fmtRuntime(m.runtime), hall.type === "imax" ? "IMAX" : hall.name].join(" · ");
 }
 
 function renderHero(){
@@ -352,9 +379,9 @@ function renderHero(){
       <div class="hero-shade"></div>
       <div class="hero-info">
         <h2 class="hero-title">${escapeHtml(m.title)}</h2>
-        <p class="hero-meta">${escapeHtml(movieMeta(m))}</p>
+        <p class="hero-meta">${ratingBadge(m)} ${escapeHtml(movieMeta(m))}</p>
         <p class="hero-desc">${escapeHtml(m.overview)}</p>
-        <span class="hero-btn">Get tickets · ${formatPrice(hallOf(m).price)}</span>
+        <span class="hero-btn">Get tickets · ${formatPrice(hallOf(m).priceGbp)}</span>
       </div>
     </a>`).join("");
   track.scrollLeft = keep;
@@ -479,7 +506,7 @@ function renderShelves(){
           <a class="wide-card" href="main.html?id=${m.id}" data-trailer="${m.trailer}">
             <div class="wide-art trailer-host" style="background-image:url('${m.backdrop}')"></div>
             <div class="wide-title">${escapeHtml(m.title)}</div>
-            <div class="wide-meta">${escapeHtml(m.rating)} · ${fmtRuntime(m.runtime)} · <span class="price-tag">${formatPrice(hallOf(m).price)}</span></div>
+            <div class="wide-meta">${ratingBadge(m)} ${fmtRuntime(m.runtime)} · <span class="price-tag">${formatPrice(hallOf(m).priceGbp)}</span></div>
           </a>`).join("")}
       </div>
     </section>`;
@@ -560,11 +587,12 @@ function initMoviePage(){
   document.getElementById("detailCode").textContent = movieLabel(movie);
   document.getElementById("detailSlots").textContent = hall.name;
   document.getElementById("detailDesc").textContent = movie.overview || "";
-  document.getElementById("detailMeta").textContent = movieMeta(movie);
+  const metaEl = document.getElementById("detailMeta");
+  priceRenderers.push(() => { metaEl.innerHTML = `${ratingBadge(movie)} ${escapeHtml(movieMeta(movie))}`; });
   document.getElementById("detailBackdrop").style.backgroundImage = `url('${movie.backdrop}')`;
   document.getElementById("trailerBtn").addEventListener("click", () => openTrailerModal(movie.trailer));
   const priceEl = document.getElementById("detailPrice");
-  priceRenderers.push(() => { priceEl.textContent = `${formatPrice(hall.price)} per seat`; });
+  priceRenderers.push(() => { priceEl.textContent = `${formatPrice(hall.priceGbp)} per seat`; });
 
   // showtimes
   let chosenTime = null;
@@ -672,13 +700,50 @@ function initMoviePage(){
     modal.classList.remove("open");
   });
 
+  // ticket types: Kawaii / Kawaii Babies counts are picked, Stinki is the rest
+  const typeCount = { kawaii: 0, babies: 0 };
+  const typesSection = document.getElementById("typesSection");
+  const typesEl = document.getElementById("ticketTypes");
+  const stinkiCount = () => chosenSeats.length - typeCount.kawaii - typeCount.babies;
+  // seats in order get Stinki first, then Kawaii, then Kawaii Babies
+  const seatTypes = () => chosenSeats.map((_, i) =>
+    i < stinkiCount() ? "stinki" : i < stinkiCount() + typeCount.kawaii ? "kawaii" : "babies");
+  const totalGbp = () => seatTypes().reduce((sum, id) => sum + hall.priceGbp * ticketType(id).pay, 0);
+  function fitTypes(){ // seats removed: take back from Babies, then Kawaii
+    while (stinkiCount() < 0){
+      if (typeCount.babies) typeCount.babies--; else typeCount.kawaii--;
+    }
+  }
+  function renderTypes(){
+    typesSection.hidden = !chosenSeats.length;
+    typesEl.innerHTML = TICKET_TYPES.map(t => {
+      const count = t.id === "stinki" ? stinkiCount() : typeCount[t.id];
+      const controls = t.id === "stinki"
+        ? `<span class="type-count">${count}</span>`
+        : `<button type="button" class="type-btn" data-type="${t.id}" data-d="-1" ${count ? "" : "disabled"} aria-label="One less ${t.name}">−</button>
+           <span class="type-count">${count}</span>
+           <button type="button" class="type-btn" data-type="${t.id}" data-d="1" ${stinkiCount() ? "" : "disabled"} aria-label="One more ${t.name}">+</button>`;
+      return `<div class="type-row">
+        <div><div class="type-name">${t.name}</div><div class="type-note">${t.note} · ${formatPrice(hall.priceGbp * t.pay)}</div></div>
+        <div class="type-ctrl">${controls}</div></div>`;
+    }).join("");
+  }
+  typesEl.addEventListener("click", e => {
+    const b = e.target.closest(".type-btn");
+    if (!b || b.disabled) return;
+    typeCount[b.dataset.type] += Number(b.dataset.d);
+    updateCta();
+  });
+
   function updateCta(){
+    fitTypes();
+    renderTypes();
     const summary = document.getElementById("ctaSummary");
     const btn = document.getElementById("ctaButton");
     const n = chosenSeats.length;
     if (chosenTime && n){
       const full = n === MAX_SEATS ? ` (max ${MAX_SEATS})` : "";
-      summary.textContent = `${movieLabel(movie)} · ${displayTime(chosenTime)} ${tzLabel()} · ${n > 1 ? "Seats" : "Seat"} ${chosenSeats.join(", ")}${full} · ${formatPrice(hall.price * n)}`;
+      summary.textContent = `${movieLabel(movie)} · ${displayTime(chosenTime)} ${tzLabel()} · ${n > 1 ? "Seats" : "Seat"} ${chosenSeats.join(", ")}${full} · ${formatPrice(totalGbp())}`;
       btn.disabled = false;
     } else {
       summary.textContent = "Pick a showtime and your seats to continue";
@@ -705,8 +770,11 @@ function initMoviePage(){
       movieCode: movieLabel(movie),
       time: chosenTime,
       seats: chosenSeats.slice(),
+      types: seatTypes(),
+      hallId: movie.hall,
       hall: hall.name,
-      totalMyr: hall.price * chosenSeats.length
+      priceGbp: hall.priceGbp,
+      totalGbp: totalGbp()
     };
     localStorage.setItem("pawnchies_booking", JSON.stringify(booking));
     location.href = "money.html";
@@ -727,11 +795,23 @@ function initPaymentPage(){
 
   // drafts saved before multi-seat only had a single "seat" and no total
   const seats = booking.seats || [booking.seat];
-  const totalMyr = booking.totalMyr != null ? booking.totalMyr : HALLS.h1.price * seats.length;
+  // older drafts have no types/GBP prices: treat them as full-price standard seats
+  const types = booking.types || seats.map(() => "stinki");
+  const priceGbp = booking.priceGbp || HALLS.h1.priceGbp;
+  const seatGbp = types.map(id => priceGbp * ticketType(id).pay);
+  const totalGbp = booking.totalGbp != null ? booking.totalGbp : seatGbp.reduce((a, b) => a + b, 0);
   const seatText = `${seats.length > 1 ? "Seats" : "Seat"} ${seats.join(", ")}`;
 
   document.getElementById("paySummaryMovie").textContent = booking.movieCode;
-  document.getElementById("paySummaryDetails").textContent = `${displayTime(booking.time)} ${tzLabel()} · ${seatText} · ${booking.hall}`;
+  const typeLines = () => TICKET_TYPES
+    .map(t => ({ t, n: types.filter(id => id === t.id).length }))
+    .filter(x => x.n)
+    .map(x => `${x.n}× ${x.t.name} ${formatPrice(priceGbp * x.t.pay * x.n)}`)
+    .join(" · ");
+  priceRenderers.push(() => {
+    document.getElementById("paySummaryDetails").textContent = `${displayTime(booking.time)} ${tzLabel()} · ${seatText} · ${booking.hall}`;
+    document.getElementById("payTypes").textContent = typeLines();
+  });
 
   const methodInputs = document.querySelectorAll('input[name="payMethod"]');
   const cardFields = document.getElementById("cardFields");
@@ -753,7 +833,7 @@ function initPaymentPage(){
       payAmount.textContent = `Pay ${formatPrice(0)} (Free)`;
     } else {
       cardFields.style.display = "block";
-      payAmount.textContent = `Pay ${formatPrice(totalMyr)} with Kawaii Bank`;
+      payAmount.textContent = `Pay ${formatPrice(totalGbp)} with Kawaii Bank`;
     }
     validateForm();
   }
@@ -797,7 +877,7 @@ function initPaymentPage(){
     const cvvOk = cardCvv.value.length === 3;
     payBtn.disabled = !(numOk && expOk && cvvOk && emailOk());
   }
-  refreshMethod();
+  refreshPrices(); // summary, type breakdown and pay button
 
   // preload the "payment done" gif as a blob so it shows instantly; a fresh
   // object URL at show time makes the gif start from its first frame
@@ -846,12 +926,17 @@ function initPaymentPage(){
       movieId: booking.movieId,
       title: movie.title || booking.movieCode,
       runtime: movie.runtime || null,
-      rating: movie.rating || "",
+      // currency, time zone and rating country all follow the home-page choice, frozen at payment
+      currency: getCurrency(),
+      rating: movie.ratings ? ratingOf(movie) : "",
+      ratingCountry: getCurrency() === "GBP" ? "uk" : "my",
       time: booking.time,
       seats: seats,
+      types: types,
+      hallId: booking.hallId || null,
       hall: booking.hall,
-      seatPrice: formatPrice(free ? 0 : totalMyr / seats.length), // frozen in the currency paid
-      total: formatPrice(free ? 0 : totalMyr),
+      seatPrices: seatGbp.map(g => formatPrice(free ? 0 : g)),
+      total: formatPrice(free ? 0 : totalGbp),
       payMethod: free ? "Cash (Free)" : "Kawaii Bank",
       cardLast4: free ? null : cardNumber.value.replace(/\D/g, "").slice(-4),
       numbers: seats.map(() => nextTicketNumber()),
@@ -865,40 +950,64 @@ function initPaymentPage(){
 /* ---------------- ticket / receipt page (ticket.html) ---------------- */
 /* tickets saved before the e-ticket format get filled in so they still render */
 function upgradeTicket(t){
-  if (t.v === 2) return t;
   const seats = t.seats || [t.seat];
-  const code = String(t.movieCode || "");
-  const movie = MOVIES.find(m => movieLabel(m) === code || m.id === code.split(" ")[0].toLowerCase()) || {};
-  return Object.assign({}, t, {
-    v: 2, movieId: movie.id, title: movie.title || code, runtime: movie.runtime, rating: movie.rating || "",
-    seats, seatPrice: t.total || "—", total: t.total || "—",
-    numbers: seats.map((_, i) => i + 1),
-    codes: seats.map((_, i) => `PAWN-${t.ticketNo || "OLD"}-${i + 1}`),
-    issuedAt: new Date().toISOString()
-  });
+  if (t.v !== 2){
+    const code = String(t.movieCode || "");
+    const movie = MOVIES.find(m => movieLabel(m) === code || m.id === code.split(" ")[0].toLowerCase()) || {};
+    t = Object.assign({}, t, {
+      v: 2, movieId: movie.id, title: movie.title || code, runtime: movie.runtime,
+      numbers: seats.map((_, i) => i + 1),
+      codes: seats.map((_, i) => `PAWN-${t.ticketNo || "OLD"}-${i + 1}`),
+      issuedAt: new Date().toISOString()
+    });
+  }
+  // fill anything older tickets didn't store
+  return Object.assign({ seats, types: seats.map(() => "stinki"), seatPrices: seats.map(() => t.seatPrice || t.total || "—") }, t, { seats });
 }
+
+/* average glyph width (em) of each poster font, so titles can be sized to fit */
+const TITLE_FONT_WIDTH = {
+  "Cormorant Garamond": 0.48, "Archivo Black": 0.72, "Noto Serif JP": 1.0, "Cinzel": 0.72,
+  "Montserrat": 0.66, "Anton": 0.46, "Bebas Neue": 0.42, "Josefin Sans": 0.56,
+  "Playfair Display": 0.56, "Cormorant SC": 0.6
+};
 
 function eticketHtml(t, i){
   const movie = getMovie(t.movieId) || {};
   const win = showWindow(t.time, t.runtime, new Date(t.issuedAt));
+  // the stub follows the currency picked on the home page when it was bought
+  const zone = t.currency === "GBP" ? "uk" : t.currency === "MYR" ? "my" : null;
+  const timeLabel = zone === "uk" ? "TIME (UK)" : zone === "my" ? "TIME (MYT)" : "TIME (UK/MYT)";
+  const timeLines = zone === "uk" ? [win.uk] : zone === "my" ? [win.myt] : [win.uk, win.myt];
+  const rating = t.rating || (movie.ratings ? ratingOf(movie, t.ratingCountry || (zone === "uk" ? "uk" : "my")) : "U");
+  // use the hall's current name, so renaming a placeholder hall updates old tickets too
+  const hallName = ((HALLS[t.hallId] && HALLS[t.hallId].name) || t.hall).replace(/\s*\(placeholder\)/i, "").toUpperCase();
+  const type = ticketType(t.types[i]);
+  const price = t.seatPrices[i];
   const num = String(t.numbers[i]).padStart(6, "0");
-  // title fills ~52% of the ticket width; Bebas Neue glyphs average ~0.42em wide
-  const titleSize = Math.min(14, 52 / (Math.max(t.title.length, 3) * 0.42)).toFixed(2);
+  // title sits in the ~36cqw left of the poster, wrapping onto up to three lines
+  const font = movie.titleFont || "Bebas Neue";
+  const fw = TITLE_FONT_WIDTH[font] || 0.6;
+  const longest = Math.max(...t.title.split(/\s+/).map(w => w.length), 2);
+  const titleSize = Math.min(9.5, 34 / (longest * fw)).toFixed(2);
+  const art = movie.poster || movie.backdrop || "";
   const metal = i % 2 ? "copper" : "gold"; // alternate like the two sample tickets
   return `
   <article class="eticket-pair">
-    <p class="eticket-count">Ticket ${i + 1} of ${t.seats.length}</p>
+    <p class="eticket-count">Ticket ${i + 1} of ${t.seats.length} · ${type.name}</p>
     <div class="eticket-scroll"><div class="eticket front">
-      <div class="et-art" style="background-image:url('${movie.backdrop || movie.poster || ""}')">
-        <div class="et-premiere">GRAND KAWAII<br>PREMIERE</div>
-        <div class="et-hallseat">${escapeHtml(t.hall.replace(/\s*\(placeholder\)/i, "").toUpperCase())} • SEAT #${escapeHtml(t.seats[i])}</div>
-        <h3 class="et-title" style="font-size:${titleSize}cqw">${escapeHtml(t.title)}</h3>
+      <div class="et-art">
+        <div class="et-art-fill" style="background-image:url('${art}')"></div>
+        <img class="et-poster" src="${art}" alt="">
+        <div class="et-premiere">${escapeHtml(hallName)}</div>
+        <div class="et-hallseat">${escapeHtml(hallName)} • SEAT #${escapeHtml(t.seats[i])}</div>
+        <h3 class="et-title" style="font-family:'${font}',serif;font-weight:${["Anton", "Bebas Neue", "Archivo Black"].includes(font) ? 400 : 700};font-size:${titleSize}cqw">${escapeHtml(t.title)}</h3>
       </div>
-      <div class="et-strip"><span>RATING: ${escapeHtml(t.rating || "U")}</span></div>
+      <div class="et-strip"><span>RATING: ${escapeHtml(rating)}</span></div>
       <div class="et-stub">
-        <div><span>TICKET PRICE</span><b>${escapeHtml(t.seatPrice)}</b></div>
+        <div><span>TICKET PRICE</span><b>${escapeHtml(price)}</b><em>${escapeHtml(type.name.toUpperCase())}</em></div>
         <div><span>DATE ISSUED</span><b>${escapeHtml(t.issued)}</b></div>
-        <div><span>TIME (UK/MYT)</span><b>${escapeHtml(win.uk)}</b><b>${escapeHtml(win.myt)}</b></div>
+        <div><span>${timeLabel}</span>${timeLines.map(l => `<b>${escapeHtml(l)}</b>`).join("")}</div>
       </div>
     </div></div>
     <div class="eticket-scroll"><div class="eticket back">
@@ -909,7 +1018,7 @@ function eticketHtml(t, i){
             <div class="et-code">${escapeHtml(t.codes[i])}</div>
             <div class="et-barcode"><svg data-code="${escapeHtml(t.codes[i])}"></svg></div>
           </div>
-          <div class="et-info">PRICE: ${escapeHtml(t.seatPrice)}<br>TIME: ${escapeHtml(win.uk)}<br>${escapeHtml(t.hall.replace(/\s*\(placeholder\)/i, "").toUpperCase())}</div>
+          <div class="et-info">PRICE: ${escapeHtml(price)}<br>TIME: ${escapeHtml(timeLines[0])}<br>${escapeHtml(hallName)}</div>
         </div>
       </div>
       <div class="et-terms">
