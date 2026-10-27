@@ -1599,7 +1599,7 @@ function initStampPage(){
    While testing, each new push to main wipes the saved ticket and restarts the
    000001 numbering. When it's time to "launch movie ticket history", set this
    to true and tickets will be kept across deploys. */
-const KEEP_TICKET_HISTORY = true;
+const KEEP_TICKET_HISTORY = false;
 
 async function resetHistoryOnNewDeploy(){
   if (KEEP_TICKET_HISTORY) return;
